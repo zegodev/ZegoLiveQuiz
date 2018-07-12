@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="zg_arr_app_flavors">
+        <item>@string/zg_text_app_flavor_china</item>
+        <item>@string/zg_text_app_flavor_intl</item>
+        <item>@string/zg_text_app_flavor_customize</item>
+    </string-array>
+</resources>

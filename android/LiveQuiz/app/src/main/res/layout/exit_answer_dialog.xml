@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/dialog_base_color"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/dimen_25dp"
+            android:text="@string/exit_the_answer"
+            android:textColor="@color/exit_answer_color_red"
+            android:textSize="@dimen/font_26sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginLeft="@dimen/dimen_30dp"
+            android:layout_marginRight="@dimen/dimen_30dp"
+            android:layout_marginTop="@dimen/dimen_25dp"
+            android:text="@string/exit_the_answer_reminder"
+            android:textColor="@color/text_color_under_common_headings"
+            android:textSize="@dimen/font_15sp"
+            android:textStyle="bold" />
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dimen_10dp"
+            android:layout_marginRight="@dimen/dimen_10dp"
+            android:layout_marginTop="@dimen/dimen_23dp">
+
+            <Button
+                android:id="@+id/exit_the_answer"
+                android:layout_width="@dimen/dimen_115dp"
+                android:layout_height="@dimen/dimen_44dp"
+                android:layout_alignParentLeft="true"
+                android:background="@drawable/shut_down"
+                android:elevation="@dimen/dimen_0dp"
+                android:text="@string/exit_the_answer" />
+
+            <Button
+                android:id="@+id/continue_the_answer"
+                android:layout_width="@dimen/dimen_115dp"
+                android:layout_height="@dimen/dimen_44dp"
+                android:layout_alignParentRight="true"
+                android:background="@drawable/selected"
+                android:elevation="@dimen/dimen_0dp"
+                android:text="@string/continue_the_answer"
+                android:textColor="@color/color_white" />
+
+        </RelativeLayout>
+
+
+    </LinearLayout>
+
+
+</FrameLayout>
