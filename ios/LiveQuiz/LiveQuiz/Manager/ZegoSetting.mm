@@ -172,8 +172,9 @@ static ZegoSetting *_settingInstance;
     }
 }
 
-#warning Please contact ZEGO support to get the AppID and signKey
-#warning 请开发者联系 ZEGO support 获取 APPID 与 signKey
+#warning 请开发者联系 ZEGO support 获取各自业务的 AppID 与 signKey
+#warning Demo 默认使用 UDP 模式，请填充该模式下的 AppID 与 signKey
+#warning AppID 填写样式示例：1234567890
 - (uint32_t)appID {
     switch (self.appType) {
         case ZegoAppTypeCustom:
@@ -189,7 +190,7 @@ static ZegoSetting *_settingInstance;
         }
             break;
         case ZegoAppTypeUDP:
-            return 10;  // UDP版
+            return ;  // UDP版
             break;
         case ZegoAppTypeI18N:
             return 100;  // 国际版
@@ -197,13 +198,14 @@ static ZegoSetting *_settingInstance;
     }
 }
 
-#warning Please contact ZEGO support to get the AppID and signKey
-#warning 请开发者联系 ZEGO support 获取 APPID 与 signKey
+#warning 请开发者联系 ZEGO support 获取各自业务的 AppID 与 signKey
+#warning Demo 默认使用 UDP 模式，请填充该模式下的 AppID 与 signKey
+#warning signKey 填写样式示例：{0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x00,0x01}
 - (NSData *)appSign {
     switch (self.appType) {
         case ZegoAppTypeUDP:
         {
-            Byte signkey[] = {0x00};
+            Byte signkey[] = ;
             return [NSData dataWithBytes:signkey length:32];
         }
             break;
