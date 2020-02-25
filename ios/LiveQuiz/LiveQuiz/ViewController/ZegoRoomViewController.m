@@ -2,31 +2,68 @@
 //  ZegoRoomViewController.m
 //  LiveQuiz
 //
-//  Created by xia on 05/02/2018.
+//  Created by summeryxia on 05/02/2018.
 //  Copyright © 2018 zego. All rights reserved.
 //
 
 #import "ZegoRoomViewController.h"
 #import "ZegoSetting.h"
+#import "ZegoSDKManager.h"
 #import "ZegoPlayViewController.h"
 #import "ZegoLogTableViewController.h"
+#import "ZegoSettingTableViewController.h"
+#import "ZegoNoRoomCell.h"
+#import <ZGAppSupport/ZGAppSupportHelper.h>
+#import <ZGAppSupport/ZGRoomListUpdateListener.h>
+#import <ZGAppSupport/ZGRoomInfo.h>
 
 static NSString *const zegoDomain      = @"zego.im";
 static NSString *const alphaBaseUrl    = @"https://alpha-liveroom-api.zego.im";
 static NSString *const testBaseUrl     = @"https://test2-liveroom-api.zego.im";
 static NSString *const enterPlayingIdentifier = @"EnterPlayingIdentifier";
 
-@interface ZegoRoomViewController ()
+
+@interface ZegoRoomCell ()
+
+@property (weak, nonatomic) IBOutlet UIView *backView;
+@property (weak, nonatomic) IBOutlet UILabel *roomIDLabel;
+
+@end
+
+@implementation ZegoRoomCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    self.backView.layer.cornerRadius = 15.0;
+    self.roomIDLabel.text = self.roomID;
+}
+
+- (void)setRoomID:(NSString *)roomID {
+    self.roomIDLabel.text = roomID;
+    [self layoutIfNeeded];
+}
+
+@end
+
+
+
+@interface ZegoRoomViewController () <ZGRoomListUpdateListener>
 
 @property (weak, nonatomic) IBOutlet UITableView *roomTableView;
 @property (nonatomic, strong) UIRefreshControl *refreshControl;
+
+@property (weak, nonatomic) IBOutlet UIButton *settingButton;
+@property (weak, nonatomic) IBOutlet UIButton *refreshButton;
 
 @property (nonatomic, strong) NSMutableArray<ZegoRoomInfo *> *roomList;
 @property (nonatomic, strong) ZegoRoomInfo *quizRoom;
 
 @property (nonatomic, strong) NSMutableArray *logArray;
 
+@property (nonatomic, assign) BOOL zegoSDKInited;
+
 @end
+
 
 @implementation ZegoRoomViewController
 
@@ -38,27 +75,26 @@ static NSString *const enterPlayingIdentifier = @"EnterPlayingIdentifier";
     
     self.logArray = [[NSMutableArray alloc] init];
     
-    self.roomTableView.layer.cornerRadius = 20.0;
+    self.settingButton.layer.cornerRadius = self.settingButton.bounds.size.height / 2.0;
+    self.refreshButton.layer.cornerRadius = self.refreshButton.bounds.size.height / 2.0;
     
     self.refreshControl = [[UIRefreshControl alloc] init];
     [self.refreshControl addTarget:self action:@selector(handleRefresh:) forControlEvents:UIControlEventValueChanged];
     [self.roomTableView insertSubview:self.refreshControl atIndex:0];
     
+    [self.roomTableView registerNib:[UINib nibWithNibName:@"ZegoNoRoomCell" bundle:nil] forCellReuseIdentifier:@"ZegoNoRoomCellID"];
+    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationBecomeActive) name:UIApplicationDidBecomeActiveNotification object:nil];
     
-    UITapGestureRecognizer *tapGestureRecognizerFive = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onTapViewFive:)];
-    tapGestureRecognizerFive.numberOfTapsRequired = 5;
-    [self.view addGestureRecognizer:tapGestureRecognizerFive];
+    // 监听 zego SDK 初始化完成
+    [NSNotificationCenter.defaultCenter addObserver:self
+                                           selector:@selector(onReceiveZegoLiveRoomApiInitCompleteNotification:)
+        name:ZegoLiveRoomApiInitCompleteNotification
+      object:nil];
     
-    NSDate *date = [NSDate date];
-    NSDateFormatter *formatter = [[NSDateFormatter alloc]init];
-    [formatter setDateFormat:@"YYYYMMddHHmmss"];
-    NSString *dateString = [formatter stringFromDate:date]; //dateString: 20160707160333
-     
-    NSString *appVersion = [NSString stringWithFormat:@"App Version: %@", dateString];
-    NSString *sdkVersion = [NSString stringWithFormat:@"SDK Version: %@", [ZegoLiveRoomApi version]];
-    NSString *veVersion = [NSString stringWithFormat:@"VE Version: %@", [ZegoLiveRoomApi version2]];
-    [self addLogString: [NSString stringWithFormat:@"%@ \n%@ \n%@", appVersion, sdkVersion, veVersion]];
+    [[ZGAppSupportHelper sharedInstance].api setRoomListUpdateListener:self];
+    
+    [self fetchLiveRoom];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -68,7 +104,6 @@ static NSString *const enterPlayingIdentifier = @"EnterPlayingIdentifier";
 
 #pragma mark - Navigation
 
-// In a storyboard-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     if ([segue.identifier isEqualToString:enterPlayingIdentifier]) {
         ZegoPlayViewController *viewController = (ZegoPlayViewController *)segue.destinationViewController;
@@ -76,118 +111,101 @@ static NSString *const enterPlayingIdentifier = @"EnterPlayingIdentifier";
     }
 }
 
+- (IBAction)onShowSettingController:(id)sender {
+    UIStoryboard *sb = [UIStoryboard storyboardWithName:@"ZegoSettingTableViewController" bundle:nil];
+    ZegoSettingTableViewController *settingController = [sb instantiateViewControllerWithIdentifier:@"Setting"];
+    settingController.modalPresentationStyle = UIModalPresentationFullScreen;
+    [self presentViewController:settingController animated:YES completion:nil];
+}
+
+- (IBAction)onRefresh:(id)sender {
+    [self handleRefresh:sender];
+}
+
 - (void)applicationBecomeActive {
     [self handleRefresh:self.refreshControl];
 }
 
-- (void)handleRefresh:(UIRefreshControl *)refreshControl
-{
-    [self.roomList removeAllObjects];
+- (void)onReceiveZegoLiveRoomApiInitCompleteNotification:(NSNotification *)note {
+    NSNumber *errorCodeObj = note.userInfo[ZegoLiveRoomApiInitErrorCodeKey];
+    if (![errorCodeObj isKindOfClass:[NSNumber class]]) {
+        return;
+    }
+    int errorCode = [errorCodeObj intValue];
+    self.zegoSDKInited = (errorCode == 0);
     [self fetchLiveRoom];
 }
 
-- (void)onTapViewFive:(UIGestureRecognizer *)gesture {
-    [self onShowLog:gesture];
+- (void)handleRefresh:(UIRefreshControl *)refreshControl {
+    [self fetchLiveRoom];
 }
 
 - (void)onShowLog:(id)sender {
     ZegoLogTableViewController *logViewController = [[ZegoLogTableViewController alloc] init];
     logViewController.logArray = self.logArray;
-    
     ZegoLogNavigationController *navigationController = [[ZegoLogNavigationController alloc] initWithRootViewController:logViewController];
+    navigationController.modalPresentationStyle = UIModalPresentationFullScreen;
     [self presentViewController:navigationController animated:YES completion:nil];
 }
 
 #pragma mark - Private
 
 - (void)fetchLiveRoom {
-    [self.refreshControl beginRefreshing];
-    
-    NSString *baseUrl = nil;
-    if ([ZegoSetting sharedInstance].useAlphaEnv) {
-        baseUrl = @"https://alpha-liveroom-api.zego.im";
-    } else if ([ZegoSetting sharedInstance].useTestEnv) {
-        baseUrl = @"https://test2-liveroom-api.zego.im";
-    } else {
-        baseUrl = [NSString stringWithFormat:@"https://liveroom%u-api.%@", [ZegoSetting sharedInstance].appID, zegoDomain];
+    // init Zego SDK if need
+    [ZegoSDKManager api];
+    if (self.zegoSDKInited) {
+        [self.refreshControl beginRefreshing];
+        [self.refreshButton setTitle:@"刷新中" forState:UIControlStateNormal];
+        
+        uint32_t appID = [ZegoSetting sharedInstance].appID;
+        NSLog(@"refreshRoomList, appID:%u",appID);
+        [[ZGAppSupportHelper sharedInstance].api updateRoomList:appID];
     }
-    
-    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/demo/roomlist?appid=%u", baseUrl, [ZegoSetting sharedInstance].appID]];
-    NSURLRequest *request = [NSURLRequest requestWithURL:url];
-    
-    [self addLogString:[NSString stringWithFormat:@"[fetchLiveRoom] url: %@", url.absoluteString]];
-    
-    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
-    configuration.timeoutIntervalForRequest = 10;
-    
-    NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
-    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if ([self.refreshControl isRefreshing]) {
-                [self.refreshControl endRefreshing];
+}
+
+#pragma mark - ZGRoomListUpdateListener
+- (void)onUpdateRoomList:(NSArray<ZGRoomInfo *> *)roomList {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSLog(@"onUpdateRoomList, roomList.count:%u", roomList.count);
+        
+        if ([self.refreshControl isRefreshing]) {
+            [self.refreshControl endRefreshing];
+        }
+        
+        [self.refreshButton setTitle:@"刷新" forState:UIControlStateNormal];
+        
+        [self.roomList removeAllObjects];
+        
+        for (ZGRoomInfo *info in roomList) {
+            ZegoRoomInfo *roomInfo = [ZegoRoomInfo new];
+            roomInfo.roomID = info.roomId;
+            roomInfo.roomName = info.roomName;
+            roomInfo.anchorID = info.anchorIdName;
+            roomInfo.anchorName = info.anchorNickName;
+            roomInfo.streamInfo = @[].mutableCopy;
+            for (ZGStreamInfo *stream in info.streamInfo) {
+                ZegoStream *tarStream = [[ZegoStream alloc] init];
+                tarStream.streamID = stream.streamId;
+                [roomInfo.streamInfo addObject:tarStream];
             }
             
-            [self.roomList removeAllObjects];
-            
-            if (error) {
-                NSLog(@"[fetchLiveRoom] error: %@", error);
-                [self addLogString:[NSString stringWithFormat:@"[fetchLiveRoom] error: %@", error]];
-                return;
-            }
-            
-            if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
-                NSError *jsonError;
-                NSDictionary *jsonResponse = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
-                if (jsonError) {
-                    NSLog(@"[fetchLiveRoom] parsing json error");
-                    [self addLogString:[NSString stringWithFormat:@"[fetchLiveRoom] parsing json error"]];
-                    return;
-                } else {
-                    NSUInteger code = [jsonResponse[@"code"] integerValue];
-                    [self addLogString:[NSString stringWithFormat:@"[fetchLiveRoom] response code: %lu", (unsigned long)code]];
-                    if (code != 0) {
-                        return;
-                    }
-                    
-                    NSArray *roomList = jsonResponse[@"data"][@"room_list"];
-                    for (int idx = 0; idx < roomList.count; idx++) {
-                        ZegoRoomInfo *info = [[ZegoRoomInfo alloc] init];
-                        NSDictionary *infoDict = roomList[idx];
-                        info.roomID = infoDict[@"room_id"];
-                        
-                        // 过滤掉 room_id 为空的房间
-                        if (info.roomID.length == 0) {
-                            continue;
-                        }
-                        
-                        // 过滤掉 stream_info 为空的房间
-                        if ([infoDict objectForKey:@"stream_info"]) {
-                            NSArray *streamList = infoDict[@"stream_info"];
-                            if (streamList.count == 0) {
-                                continue;
-                            }
-                        }
-                        
-                        info.anchorID = infoDict[@"anchor_id_name"];
-                        info.anchorName = infoDict[@"anchor_nick_name"];
-                        info.roomName = infoDict[@"room_name"];
-                        info.streamInfo = [[NSMutableArray alloc] initWithCapacity:1];
-                        
-                        for (NSDictionary *dict in infoDict[@"stream_info"]) {
-                            ZegoStream *stream = [[ZegoStream alloc] init];
-                            stream.streamID = dict[@"stream_id"];
-                            [info.streamInfo addObject:stream];
-                        }
-                        
-                        [self.roomList addObject:info];
-                        [self.roomTableView reloadData];
-                    }
-                }
-            }
-        });
-    }];
-    
-    [task resume];
+            [self.roomList addObject:roomInfo];
+        }
+        
+        [self.roomTableView reloadData];
+    });
+}
+
+- (void)onUpdateRoomListError {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSLog(@"onUpdateRoomListError");
+        
+        if ([self.refreshControl isRefreshing]) {
+            [self.refreshControl endRefreshing];
+        }
+        
+        [self.refreshButton setTitle:@"刷新" forState:UIControlStateNormal];
+    });
 }
 
 - (void)addLogString:(NSString *)logString
@@ -204,10 +222,9 @@ static NSString *const enterPlayingIdentifier = @"EnterPlayingIdentifier";
 - (NSString *)getCurrentTime
 {
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-    formatter.dateFormat = @"[HH-mm-ss:SSS]";
+    formatter.dateFormat = @"[YYYY-HH-mm-ss:SSS]";
     return [formatter stringFromDate:[NSDate date]];
 }
-
 
 #pragma mark - Access
 
@@ -225,7 +242,7 @@ static NSString *const enterPlayingIdentifier = @"EnterPlayingIdentifier";
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return self.roomList.count;
+    return self.roomList.count > 0 ? self.roomList.count : 1;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -233,18 +250,25 @@ static NSString *const enterPlayingIdentifier = @"EnterPlayingIdentifier";
         return nil;
     }
     
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"RoomCell" forIndexPath:indexPath];
-    ZegoRoomInfo *info = self.roomList[indexPath.row];
-    cell.textLabel.text = [NSString stringWithFormat:@"RoomID: %@", info.roomID];
-//    cell.detailTextLabel.text = [NSString stringWithFormat:@"RoomName: %@", info.roomName];
-    
-    return cell;
+    if (self.roomList.count > 0) {
+        ZegoRoomCell *cell = [tableView dequeueReusableCellWithIdentifier:@"RoomCell" forIndexPath:indexPath];
+        ZegoRoomInfo *info = self.roomList[indexPath.row];
+        cell.roomID = [NSString stringWithFormat:@"%@", info.roomID];
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        cell.userInteractionEnabled = YES;
+        return cell;
+    } else {
+        ZegoNoRoomCell *cell = [tableView dequeueReusableCellWithIdentifier:@"ZegoNoRoomCellID" forIndexPath:indexPath];
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        cell.userInteractionEnabled = NO;
+        return cell;
+    }
 }
 
 #pragma mark - UITableViewDelegate
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return 44;
+    return 65;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {

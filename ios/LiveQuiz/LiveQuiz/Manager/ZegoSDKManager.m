@@ -9,6 +9,9 @@
 #import "ZegoSDKManager.h"
 #import "ZegoSetting.h"
 
+NSString *ZegoLiveRoomApiInitCompleteNotification = @"ZegoLiveRoomApiInitCompleteNotification";
+NSString *ZegoLiveRoomApiInitErrorCodeKey = @"ZegoLiveRoomApiInitErrorCodeKey";
+
 @implementation ZegoSDKManager
 
 static ZegoLiveRoomApi *_apiInstance = nil;
@@ -28,7 +31,12 @@ static ZegoLiveRoomApi *_apiInstance = nil;
         [ZegoLiveRoomApi setUserID:[ZegoSetting sharedInstance].userID userName:[ZegoSetting sharedInstance].userName];
         
         // 初始化 SDK 实例
-        _apiInstance = [[ZegoLiveRoomApi alloc] initWithAppID:[ZegoSetting sharedInstance].appID appSignature:[ZegoSetting sharedInstance].appSign];
+        _apiInstance = [[ZegoLiveRoomApi alloc] initWithAppID:[ZegoSetting sharedInstance].appID appSignature:[ZegoSetting sharedInstance].appSign completionBlock:^(int errorCode) {
+            NSLog(@"init SDK result:%d", errorCode);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [NSNotificationCenter.defaultCenter postNotificationName:ZegoLiveRoomApiInitCompleteNotification object:self userInfo:@{ZegoLiveRoomApiInitErrorCodeKey:@(errorCode)}];
+            });
+        }];
         
         // 初始化硬件编解码配置
 #if TARGET_OS_SIMULATOR

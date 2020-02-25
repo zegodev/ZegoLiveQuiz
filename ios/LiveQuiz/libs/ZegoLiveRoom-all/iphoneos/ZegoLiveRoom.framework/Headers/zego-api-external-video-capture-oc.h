@@ -55,7 +55,19 @@ typedef struct {
     int height;
     /** 编码格式 */
     ZegoVideoCodecType codecType;
+    /** 逆时间旋转角度（注意：仅支持 udp 流，对 rtmp 流无效） */
+    int rotation;
 } ZegoVideoCodecConfig;
+
+/** 翻转模式 */
+typedef enum : NSUInteger {
+    /** 不翻转 */
+    ZegoVideoFlipNone = 0,
+    /** 水平翻转，镜像 */
+    ZegoVideoFlipHorizontal = 1 << 0,
+    /** 垂直翻转 */
+    ZegoVideoFlipVertical = 1 << 1,
+} ZegoVideoFlipMode;
 
 /** 视频外部采集代理 */
 @protocol ZegoVideoCaptureDelegate <NSObject>
@@ -81,11 +93,13 @@ typedef struct {
 
 /**
  接受已编码的视频帧数据
-
- @param data 已编码数据
+ 
+ @param data 已编码数据，目前只支持 H.264 码流
  @param config 编码配置，请参考 ZegoVideoCodecConfig 定义
- @param bKeyframe 是否为关键帧
+ @param bKeyframe 是否为关键帧，建议关键帧间隔在 2S 左右
  @param time 采集到该帧的时间戳，用于音画同步，如果采集实现是摄像头，最好使用系统采集回调的原始时间戳。如果不是，最好是生成该帧的UTC时间戳
+ @discussion 推荐每 2S 一个 gop，每个 I 帧必须携带 sps 和 pps，且放在最前面。
+ @discussion 仅接受 I 帧 和 P 帧，不接受 B 帧
  */
 - (void)onEncodedFrame:(nonnull NSData *)data config:(ZegoVideoCodecConfig)config bKeyframe:(bool)bKeyframe withPresentationTimeStamp:(CMTime)time;
 
@@ -117,7 +131,22 @@ typedef struct {
  */
 - (void)onError:(nullable NSString*)reason;
 
+
+/**
+ 设置图像填充模式
+
+ @param mode 填充模式
+ */
 - (void)setFillMode:(ZegoVideoFillMode)mode;
+
+/**
+ 设置图像翻转模式
+
+ @param mode 翻转模式, 参考ZegoVideoFlipMode的定义
+ @discussion supportBufferType 为 ZegoVideoCaptureDeviceOutputBufferTypeGlTexture2D 时有效
+ @discussion 默认值 ZegoVideoFlipVertical, 如果不需要，设置成ZegoVideoFlipNone
+ */
+- (void)setFlipMode:(int)mode;
 
 @end
 

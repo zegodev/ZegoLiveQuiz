@@ -2,7 +2,7 @@
 //  ZegoLogTableViewController.m
 //  
 //
-//  Created by summery on 13/09/2017.
+//  Created by summeryxia on 13/09/2017.
 //  Copyright © 2017 ZEGO. All rights reserved.
 //
 
@@ -129,8 +129,8 @@
     UIBarButtonItem *closeItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"完成", nil) style:UIBarButtonItemStylePlain target:self action:@selector(closeLog)];
     [item setRightBarButtonItem:closeItem];
     
-    UIBarButtonItem *uploadfItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"上传日志", nil) style:UIBarButtonItemStylePlain target:self action:@selector(uploadLog)];
-    [item setLeftBarButtonItem:uploadfItem];
+//    UIBarButtonItem *uploadfItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"上传日志", nil) style:UIBarButtonItemStylePlain target:self action:@selector(uploadLog)];
+//    [item setLeftBarButtonItem:uploadfItem];
 }
 
 - (void)closeLog {

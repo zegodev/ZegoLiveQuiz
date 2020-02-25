@@ -2,7 +2,7 @@
 //  ZegoUserCell.h
 //  LiveQuiz
 //
-//  Created by xia on 01/02/2018.
+//  Created by summeryxia on 01/02/2018.
 //  Copyright © 2018 zego. All rights reserved.
 //
 
@@ -10,6 +10,8 @@
 
 @interface ZegoUserCell : UITableViewCell
 
-@property (weak, nonatomic) IBOutlet UILabel *userNameLabel;
+@property (nonatomic, copy) NSString *firstUser;
+@property (nonatomic, copy) NSString *secondUser;
+@property (nonatomic, copy) NSString *thirdUser;
 
 @end

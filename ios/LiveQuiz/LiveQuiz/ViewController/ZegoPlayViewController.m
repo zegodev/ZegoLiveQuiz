@@ -70,6 +70,11 @@ static NSString * const sumKey = @"sum";
 @property (nonatomic, assign) int retryPlayIndex;      // 播放失败重试控制
 @property (nonatomic, assign) int retryConnectIndex;   // onDisconnect 失败重试控制
 
+@property (nonatomic, strong) NSMutableArray *questionIDs;  // 记录一轮游戏中 question 的 questionID
+@property (nonatomic, strong) NSMutableArray *answerIDS;    // 记录一轮游戏中 answer 的 questionID
+@property (nonatomic, copy) NSString *sumID;    // 记录一轮游戏中 sum 的 activityID
+
+
 @end
 
 @implementation ZegoPlayViewController
@@ -83,10 +88,10 @@ static NSString * const sumKey = @"sum";
     
     [self setupModel];
     [self setupSDKKit];
+    [self setupUI];
     
     [self loginRoom];
     
-    [self setupUI];
     [self setupNotification];
 
     // 如果在首页列表中获取到了流信息，则秒播
@@ -95,9 +100,6 @@ static NSString * const sumKey = @"sum";
         self.streamID = stream.streamID;
         [self playStreamDirectly];
     }
-    
-//    [self startMessageTimer]; // message 假数据演示
-
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -108,7 +110,6 @@ static NSString * const sumKey = @"sum";
 - (void)viewWillDisappear:(BOOL)animated {
     [[UIApplication sharedApplication] setIdleTimerDisabled:NO];
     
-//    [self stopMessageTimer];
     [[ZegoSDKManager api] setMediaSideCallback:nil];
     [super viewWillDisappear:animated];
 }
@@ -130,6 +131,7 @@ static NSString * const sumKey = @"sum";
     logViewController.logArray = self.logArray;
     
     ZegoLogNavigationController *navigationController = [[ZegoLogNavigationController alloc] initWithRootViewController:logViewController];
+    navigationController.modalPresentationStyle = UIModalPresentationFullScreen;
     [self presentViewController:navigationController animated:YES completion:nil];
 }
 
@@ -144,10 +146,6 @@ static NSString * const sumKey = @"sum";
     if (self.customCommentView.commentInput.isEditing) {
         [self.customCommentView.commentInput resignFirstResponder];
     }
-}
-
-- (void)onTapViewFive:(UIGestureRecognizer *)gesture {
-    [self onShowLog:gesture];
 }
 
 - (void)keyboardWillShow:(NSNotification *)notification {
@@ -249,6 +247,9 @@ static NSString * const sumKey = @"sum";
     
     mediaSeq = -1;
     self.finalUserCount = 0;
+    
+    self.questionIDs = [[NSMutableArray alloc] init];
+    self.answerIDS = [[NSMutableArray alloc] init];
 }
 
 - (void)setupUI {
@@ -258,9 +259,9 @@ static NSString * const sumKey = @"sum";
     
     // 评论 view
     ZegoCommentView *customCommentView = [[[NSBundle mainBundle] loadNibNamed:@"ZegoCommentView" owner:self options:nil] lastObject];
-    customCommentView.bounds = self.commentView.bounds;
-    customCommentView.delegate = self;
     [self.commentView addSubview:customCommentView];
+    customCommentView.frame = CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, 50);
+    customCommentView.delegate = self;
     self.customCommentView = customCommentView;
     self.customCommentView.commentInput.delegate = self;
     
@@ -271,10 +272,6 @@ static NSString * const sumKey = @"sum";
     // 手势
     UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onTapView:)];
     [self.view addGestureRecognizer:tapGestureRecognizer];
-    
-    UITapGestureRecognizer *tapGestureRecognizerFive = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onTapViewFive:)];
-    tapGestureRecognizerFive.numberOfTapsRequired = 5;
-    [self.view addGestureRecognizer:tapGestureRecognizerFive];
 }
 
 - (void)setupNotification {
@@ -305,8 +302,7 @@ static NSString * const sumKey = @"sum";
     [self.view addSubview:viewController.view];
     [viewController didMoveToParentViewController:self];
     
-    viewController.view.bounds = CGRectMake(0, 0, 300, 500);
-    viewController.view.center = self.view.center;
+    viewController.view.frame = CGRectMake(0, 60, [UIScreen mainScreen].bounds.size.width, 383);
     
     self.statViewController = viewController;
     self.statViewController.delegate = self;
@@ -320,7 +316,7 @@ static NSString * const sumKey = @"sum";
 }
 
 - (void)playStreamDirectly {
-    [self addLogString:@"Play Stream Directly"];
+    [self addLogString:@"Enter playStreamDirectly"];
     NSLog(@"Play Stream Directly");
     
     UIView *bigView = [[UIView alloc] init];
@@ -341,11 +337,11 @@ static NSString * const sumKey = @"sum";
     [[ZegoSDKManager api] loginRoom:self.roomInfo.roomID
                                role:ZEGO_AUDIENCE
                 withCompletionBlock:^(int errorCode, NSArray<ZegoStream *> *streamList) {
-        NSLog(@"%s, error: %d", __func__, errorCode);
+        NSLog(@"[loginRoom] error: %d", errorCode);
         if (errorCode == 0)
         {
             NSLog(@"登录房间成功，roomID: %@", self.roomInfo.roomID);
-            NSString *logString = [NSString stringWithFormat:NSLocalizedString(@"登录房间成功. roomID: %@", nil), self.roomInfo.roomID];
+            NSString *logString = [NSString stringWithFormat:NSLocalizedString(@"Login Room Succeeded, roomID: %@", nil), self.roomInfo.roomID];
             [self addLogString:logString];
             
             self.isLoginSucceeded = YES;
@@ -360,7 +356,7 @@ static NSString * const sumKey = @"sum";
             if (self.streamID.length) {
                 // 登录成功前已经从房间列表获取到了流ID
                 if ([streamFirst.streamID isEqualToString:self.streamID]) {
-                    NSLog(@"login-streamID is the same as the initial one, did nothing");
+                    NSLog(@"Login-StreamID is the same as the initial one, ignore");
                     return;
                 }
             }
@@ -373,7 +369,7 @@ static NSString * const sumKey = @"sum";
         else
         {
             NSLog(@"登录房间失败，error: %d", errorCode);
-            NSString *logString = [NSString stringWithFormat:NSLocalizedString(@"登录房间失败. error: %d", nil), errorCode];
+            NSString *logString = [NSString stringWithFormat:NSLocalizedString(@"Login Room Failed, error: %d", nil), errorCode];
             [self addLogString:logString];
             
             if (self.retryConnectIndex > maxRetryCount) {
@@ -382,7 +378,7 @@ static NSString * const sumKey = @"sum";
         }
     }];
     
-    [self addLogString:[NSString stringWithFormat:NSLocalizedString(@"开始登录房间", nil)]];
+    [self addLogString:[NSString stringWithFormat:NSLocalizedString(@"Begin to Login Room", nil)]];
 }
 
 - (void)addLogString:(NSString *)logString
@@ -406,6 +402,21 @@ static NSString * const sumKey = @"sum";
 - (void)setBackgroundImage:(UIImage *)image playerView:(UIView *)playerView
 {
     playerView.backgroundColor = [UIColor colorWithPatternImage:image];
+}
+
+- (void)showAlert:(NSString *)message title:(NSString *)title {
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title
+                                                                             message:message
+                                                                      preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *confirm = [UIAlertAction actionWithTitle:NSLocalizedString(@"确定", nil)
+                                                      style:UIAlertActionStyleDefault
+                                                    handler:^(UIAlertAction * _Nonnull action) {
+                                                        
+                                                    }];
+    
+    [alertController addAction:confirm];
+    
+    [self presentViewController:alertController animated:YES completion:nil];
 }
 
 #pragma mark -- Timer
@@ -439,7 +450,7 @@ static NSString * const sumKey = @"sum";
 
 void onReceivedMediaSideInfo(const char *pszStreamID, const unsigned char* buf, int dataLen) {
     if (dataLen == 0) {
-        NSLog(@"%s, data is empty", __func__);
+        NSLog(@"[onReceivedMediaSideInfo] data is empty");
         return;
     }
     
@@ -449,16 +460,14 @@ void onReceivedMediaSideInfo(const char *pszStreamID, const unsigned char* buf, 
     NSDictionary *info = [NSJSONSerialization JSONObjectWithData:mediaInfo options:0 error:&error];
     
     if (error == nil) {
-        int seq = [info[@"seq"] intValue];
-        if (seq <= mediaSeq) {
-            NSLog(@"%s, repeat seq: %d, discard", __func__, seq);
+        [selfObject handleActivity:info];
+        
+        if ([selfObject handleDuplication:info]) {
             return;
         }
         
-        NSLog(@"%s, type: %@, activityId: %@, questionId: %@", __func__, info[@"type"], info[@"data"][@"id"], info[@"data"][@"activity_id"]);
-        [selfObject addLogString:[NSString stringWithFormat:@"%s, type: %@, activityId: %@, questionId: %@", __func__, info[@"type"], info[@"data"][@"id"], info[@"data"][@"activity_id"]]];
-        
-        mediaSeq = seq;
+        NSLog(@"[onReceivedMediaSideInfo] type: %@, questionId: %@, activityId: %@", info[@"type"], info[@"data"][@"id"], info[@"data"][@"activity_id"]);
+        [selfObject addLogString:[NSString stringWithFormat:@"[onReceivedMediaSideInfo] type: %@, questionId: %@, activityId: %@", info[@"type"], info[@"data"][@"id"], info[@"data"][@"activity_id"]]];
         
         if ([info[@"type"] isEqualToString:questionKey]) {
             [selfObject handleQuestionInfo:info];
@@ -467,9 +476,60 @@ void onReceivedMediaSideInfo(const char *pszStreamID, const unsigned char* buf, 
         } else if ([info[@"type"] isEqualToString:sumKey]) {
             [selfObject handleFinalResult:info];
         } else {
-            NSLog(@"onReceivedMediaSideInfo unknown type, don't handle");
+            NSLog(@"onReceivedMediaSideInfo unknown type, ignore");
         }
     }
+}
+
+- (void)handleActivity:(NSDictionary *)info {
+    NSString *activityID = info[@"data"][@"activity_id"];
+    if (self.activityInfo.activityID.length == 0) {
+        // 首次收到题目
+        self.activityInfo.activityID = activityID;
+    } else {
+        if (![self.activityInfo.activityID isEqualToString:activityID]) {
+            // activity ID 改变，重新开始一轮游戏
+            self.activityInfo.activityID = activityID;
+            [self.questionIDs removeAllObjects];
+            [self.answerIDS removeAllObjects];
+        }
+    }
+}
+
+- (BOOL)handleDuplication:(NSDictionary *)info {
+    NSString *type = info[@"type"];
+    NSDictionary *data = info[@"data"];
+    NSString *itemID = data[@"id"];
+    NSString *itemActivityID = data[@"activity_id"];
+    
+    if ([type isEqualToString:questionKey]) {
+        if ([self.questionIDs containsObject:itemID]) {
+            NSLog(@"[handleDuplication] repeat question-questionID: %@, ignore", itemID);
+            return YES;
+        } else {
+            [self.questionIDs addObject:itemID];
+        }
+    } else if ([type isEqualToString:answerKey]) {
+        if ([self.answerIDS containsObject:itemID]) {
+            NSLog(@"[handleDuplication] repeat answer-questionID: %@, ignore", itemID);
+            return YES;
+        } else {
+            [self.answerIDS addObject:itemID];
+        }
+    } else if ([type isEqualToString:sumKey]) {
+        if (self.sumID.length && [self.sumID isEqualToString:itemActivityID]) {
+            NSLog(@"[handleDuplication] repeat sum-activityID: %@, ignore", itemActivityID);
+            return YES;
+        } else {
+            self.sumID = itemActivityID;
+            [self.questionIDs removeAllObjects];
+            [self.answerIDS removeAllObjects];
+        }
+    } else {
+        NSLog(@"onReceivedMediaSideInfo unknown type, ignore");
+    }
+    
+    return NO;
 }
 
 /**
@@ -501,13 +561,7 @@ void onReceivedMediaSideInfo(const char *pszStreamID, const unsigned char* buf, 
     
     NSDictionary *data = info[@"data"];
     currentQuiz.quizID = data[@"id"];
-    NSString *activityID = data[@"activity_id"];
-    
-    if (![self.activityInfo.activityID isEqualToString:activityID]) {
-        self.activityInfo.activityID = activityID;
-    }
-    
-    NSLog(@"%s, quizID: %@, activityID: %@", __func__, currentQuiz.quizID, self.activityInfo.activityID);
+    NSLog(@"[handleQuestionInfo] questionID: %@, activityID: %@", currentQuiz.quizID, self.activityInfo.activityID);
     
     NSInteger index = [data[@"index"] integerValue];
     currentQuiz.index = index;
@@ -576,8 +630,8 @@ void onReceivedMediaSideInfo(const char *pszStreamID, const unsigned char* buf, 
     NSDictionary *data = info[@"data"];
     NSString *quizID = data[@"id"];
     if (![quizID isEqualToString:self.currentQuiz.quizID]) {
-        [self addLogString:@"received answer, but quizID mismatch, abandon"];
-        NSLog(@"received answer, but quizID mismatch, abandon");
+        [self addLogString:@"answer received, but questionID mismatch, ignore"];
+        NSLog(@"answer received, but questionID mismatch, ignore");
         return;
     }
     
@@ -586,7 +640,7 @@ void onReceivedMediaSideInfo(const char *pszStreamID, const unsigned char* buf, 
     NSArray *answerStat = data[@"answer_stat"];
     
     if ([answerStat count] != 3) {
-        NSLog(@"onReceivedMediaSideInfo answerStat count: %lu, which is not equal to 3, abandon", (unsigned long)[answerStat count]);
+        NSLog(@"onReceivedMediaSideInfo answerStat count: %lu, which is not equal to 3, ignore", (unsigned long)[answerStat count]);
         return;
     }
     
@@ -594,7 +648,7 @@ void onReceivedMediaSideInfo(const char *pszStreamID, const unsigned char* buf, 
         // 获取正确答案的人数
         if ([answer[@"answer"] isEqualToString:self.currentQuiz.correctAnswer]) {
             self.finalUserCount =  [answer[@"user_count"] integerValue];
-            NSLog(@"%s, finaUserCount: %ld", __func__, (long)self.finalUserCount);
+            NSLog(@"[handleAnswerInfo] finalUserCount: %ld", (long)self.finalUserCount);
         }
         
         if ([answer[@"answer"] isEqualToString:@"A"]) {
@@ -664,24 +718,14 @@ void onReceivedMediaSideInfo(const char *pszStreamID, const unsigned char* buf, 
     ZegoFinalStatViewController *statController = [[ZegoFinalStatViewController alloc] initWithNibName:@"ZegoFinalStatViewController" bundle:nil];
     statController.winnerList = list;
     statController.totalCount = self.finalUserCount;
-    
-//    NSMutableArray *list = [[NSMutableArray alloc] init];
-//    for (int i = 0; i < 3; i++) {
-//        ZegoUser *user = [[ZegoUser alloc] init];
-//        user.userId = [NSString stringWithFormat:@"userID-%d", i];
-//        user.userName = [NSString stringWithFormat:@"userName-%d", i];
-//        [list addObject:user];
-//    }
-//    statController.winnerList = list;
-    
+
     dispatch_async(dispatch_get_main_queue(), ^{
         [self displayFinalStatController:statController];
     });
-    
 }
 
 - (void)showQuizView:(ZegoQuizInfo *)quizInfo {
-    NSLog(@"%s, quizInfo: %@", __func__, quizInfo);
+    NSLog(@"[showQuizView] quizInfo: %@", quizInfo);
     countdown = COUNTDOWN;
     
     // 如果之前的弹框还存在，先清理掉，并停止关联定时器
@@ -717,12 +761,12 @@ void onReceivedMediaSideInfo(const char *pszStreamID, const unsigned char* buf, 
 
 - (void)onRecvBigRoomMessage:(NSString *)roomId messageList:(NSArray<ZegoBigRoomMessage*> *)messageList {
     if (![roomId isEqualToString:self.roomInfo.roomID]) {
-        NSLog(@"%s, receive big room message, but roomId mismatch, abandon", __func__);
+        NSLog(@"[onRecvBigRoomMessage] receive big room message, but roomId mismatch, abandon");
         return;
     }
     
     if (messageList.count == 0) {
-        NSLog(@"%s, receive big room message, but messageList is nil", __func__);
+        NSLog(@"[onRecvBigRoomMessage] receive big room message, but messageList is nil");
         return;
     }
     
@@ -734,27 +778,27 @@ void onReceivedMediaSideInfo(const char *pszStreamID, const unsigned char* buf, 
 
 - (void)onPlayStateUpdate:(int)stateCode streamID:(NSString *)streamID
 {
-    NSLog(@"%s, streamID:%@", __func__, streamID);
+    NSLog(@"[onPlayStateUpdate] stateCode: %d, streamID:%@", stateCode, streamID);
     
     if (stateCode == 0) {
-        NSString *logString = [NSString stringWithFormat:NSLocalizedString(@"播放流成功, streamID: %@", nil), streamID];
+        NSString *logString = [NSString stringWithFormat:NSLocalizedString(@"Play Stream Failed, streamID: %@", nil), streamID];
         NSLog(@"%@", logString);
         [self addLogString:logString];
         
         self.isPlaying = YES;
         self.retryPlayIndex = 0;
     } else {
-        NSString *logString = [NSString stringWithFormat:NSLocalizedString(@"播放流失败, 流ID: %@, error: %d", nil), streamID, stateCode];
+        NSString *logString = [NSString stringWithFormat:NSLocalizedString(@"Play Stream Failed, streamID: %@, error: %d", nil), streamID, stateCode];
         NSLog(@"%@", logString);
         [self addLogString:logString];
         
         self.retryPlayIndex ++;
-        //        [self retryPlay:streamID]; // FIXME: 定位到了问题再放开
+//        [self retryPlay:streamID]; // FIXME: 定位到了问题再放开
     }
 }
 
 - (void)retryPlay:(NSString *)streamID {
-    NSLog(@"%s, retryPlayIndex: %d", __func__, self.retryPlayIndex);
+    NSLog(@"[retryPlay] retryPlayIndex: %d", self.retryPlayIndex);
     
     if (self.retryPlayIndex <= maxRetryCount) {
         if (![self.viewContainers.allKeys containsObject:streamID]) {
@@ -770,9 +814,9 @@ void onReceivedMediaSideInfo(const char *pszStreamID, const unsigned char* buf, 
 
 - (void)onVideoSizeChangedTo:(CGSize)size ofStream:(NSString *)streamID
 {
-    NSLog(@"%s, streamID %@", __func__, streamID);
+    NSLog(@"[onVideoSizeChangedTo] streamID %@", streamID);
     
-    NSString *logString = [NSString stringWithFormat:NSLocalizedString(@"第一帧画面, streamID: %@", nil), streamID];
+    NSString *logString = [NSString stringWithFormat:NSLocalizedString(@"Get the first video frame, streamID: %@", nil), streamID];
     [self addLogString:logString];
 
     UIView *view = self.viewContainers[streamID];
@@ -782,7 +826,7 @@ void onReceivedMediaSideInfo(const char *pszStreamID, const unsigned char* buf, 
 #pragma mark - ZegoRoomDelegate
 
 - (void)onDisconnect:(int)errorCode roomID:(NSString *)roomID {
-    NSString *logString = [NSString stringWithFormat:@"%s, roomID: %@, error: %d", __func__, roomID, errorCode];
+    NSString *logString = [NSString stringWithFormat:@"[onDisconnect] roomID: %@, error: %d", roomID, errorCode];
     [self addLogString:logString];
     NSLog(@"%@", logString);
     
@@ -791,7 +835,7 @@ void onReceivedMediaSideInfo(const char *pszStreamID, const unsigned char* buf, 
 }
 
 - (void)onReconnect:(int)errorCode roomID:(NSString *)roomID {
-    NSString *logString = [NSString stringWithFormat:@"%s, roomID: %@, error: %d", __func__, roomID, errorCode];
+    NSString *logString = [NSString stringWithFormat:@"[onReconnect] roomID: %@, error: %d", roomID, errorCode];
     [self addLogString:logString];
 }
 
@@ -803,29 +847,14 @@ void onReceivedMediaSideInfo(const char *pszStreamID, const unsigned char* buf, 
 
 #pragma mark - ZegoCommentViewDelegate
 
-- (void)onShareButtonClicked:(id)sender {
-    [self showAlert:@"该功能由业务方自行实现" title:@"提示"];
-}
-
-- (void)showAlert:(NSString *)message title:(NSString *)title {
-    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title
-                                                                             message:message
-                                                                      preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *confirm = [UIAlertAction actionWithTitle:NSLocalizedString(@"确定", nil)
-                                                      style:UIAlertActionStyleDefault
-                                                    handler:^(UIAlertAction * _Nonnull action) {
-                                                        
-                                                    }];
-    
-    [alertController addAction:confirm];
-    
-    [self presentViewController:alertController animated:YES completion:nil];
+- (void)onLogButtonClicked:(id)sender {
+    [self onShowLog:sender];
 }
 
 - (void)sendRoomMessage {
     [self.customCommentView.commentInput resignFirstResponder];
     if (self.customCommentView.commentInput.text.length == 0) {
-        NSLog(@"%s，评论为空，不发送任何信息", __func__);
+        NSLog(@"[sendRoomMessage] 评论为空，不发送任何信息");
         return;
     }
     

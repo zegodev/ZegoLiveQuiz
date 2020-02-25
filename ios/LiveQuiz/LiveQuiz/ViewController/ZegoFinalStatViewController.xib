@@ -6,13 +6,20 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
+    <customFonts key="customFonts">
+        <array key="PingFang.ttc">
+            <string>PingFangSC-Medium</string>
+        </array>
+    </customFonts>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ZegoFinalStatViewController">
             <connections>
-                <outlet property="statLabel" destination="zKe-Kn-3O5" id="XYZ-Hu-ghv"/>
+                <outlet property="congratuateLabel" destination="zhB-si-pk4" id="46Y-t5-7rz"/>
+                <outlet property="statLabel" destination="txk-Eb-HDx" id="3GG-MU-j0g"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
                 <outlet property="winnerTableView" destination="gkL-Wb-RNw" id="yKN-7c-rsG"/>
             </connections>
@@ -23,53 +30,49 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="gkL-Wb-RNw">
-                    <rect key="frame" x="0.0" y="120" width="375" height="547"/>
-                    <color key="backgroundColor" red="0.2901960784" green="0.086274509799999996" blue="0.63529411759999999" alpha="1" colorSpace="calibratedRGB"/>
+                    <rect key="frame" x="0.0" y="303" width="375" height="120"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="120" id="OIZ-FD-wvr"/>
+                    </constraints>
                 </tableView>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hXy-Yg-hyo">
-                    <rect key="frame" x="0.0" y="60" width="375" height="60"/>
-                    <subviews>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="本场答题获胜总人数：10" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zKe-Kn-3O5">
-                            <rect key="frame" x="30" y="18.5" width="213.5" height="23"/>
-                            <fontDescription key="fontDescription" type="system" pointSize="19"/>
-                            <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                            <nil key="highlightedColor"/>
-                        </label>
-                    </subviews>
-                    <color key="backgroundColor" red="0.2901960784" green="0.086274509799999996" blue="0.63529411759999999" alpha="1" colorSpace="calibratedRGB"/>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="result" translatesAutoresizingMaskIntoConstraints="NO" id="ytX-Wh-2ZC">
+                    <rect key="frame" x="0.0" y="20" width="375" height="168"/>
                     <constraints>
-                        <constraint firstItem="zKe-Kn-3O5" firstAttribute="centerY" secondItem="hXy-Yg-hyo" secondAttribute="centerY" id="6Th-pe-w8D"/>
-                        <constraint firstAttribute="height" constant="60" id="DP3-th-yIv"/>
-                        <constraint firstItem="zKe-Kn-3O5" firstAttribute="leading" secondItem="hXy-Yg-hyo" secondAttribute="leading" constant="30" id="Gym-0L-0zC"/>
+                        <constraint firstAttribute="width" secondItem="ytX-Wh-2ZC" secondAttribute="height" multiplier="375:168" id="oJc-4q-aze"/>
                     </constraints>
-                </view>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="E2a-Yg-pmc">
-                    <rect key="frame" x="329" y="30" width="46" height="30"/>
-                    <constraints>
-                        <constraint firstAttribute="height" constant="30" id="oqh-ui-47O"/>
-                        <constraint firstAttribute="width" constant="46" id="wLd-q6-fZR"/>
-                    </constraints>
-                    <state key="normal" title="关闭">
-                        <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                    </state>
-                    <connections>
-                        <action selector="onClose:" destination="-1" eventType="touchUpInside" id="xOl-dx-exn"/>
-                    </connections>
-                </button>
+                </imageView>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="通关" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="txk-Eb-HDx">
+                    <rect key="frame" x="165" y="208" width="46" height="33"/>
+                    <fontDescription key="fontDescription" name="PingFangSC-Medium" family="PingFang SC" pointSize="23"/>
+                    <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="— 恭喜以下获胜者 —" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zhB-si-pk4">
+                    <rect key="frame" x="130" y="256" width="116" height="17"/>
+                    <fontDescription key="fontDescription" name="PingFangSC-Medium" family="PingFang SC" pointSize="12"/>
+                    <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    <nil key="highlightedColor"/>
+                </label>
             </subviews>
-            <color key="backgroundColor" red="0.2901960784" green="0.086274509799999996" blue="0.63529411759999999" alpha="1" colorSpace="calibratedRGB"/>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
             <constraints>
-                <constraint firstItem="hXy-Yg-hyo" firstAttribute="top" secondItem="Q5M-cg-NOt" secondAttribute="top" constant="40" id="3bz-ox-wSy"/>
-                <constraint firstItem="gkL-Wb-RNw" firstAttribute="top" secondItem="hXy-Yg-hyo" secondAttribute="bottom" id="5WN-7v-36f"/>
-                <constraint firstItem="Q5M-cg-NOt" firstAttribute="trailing" secondItem="hXy-Yg-hyo" secondAttribute="trailing" id="61x-0a-tho"/>
-                <constraint firstItem="hXy-Yg-hyo" firstAttribute="top" secondItem="E2a-Yg-pmc" secondAttribute="bottom" id="7cR-eO-B7B"/>
-                <constraint firstItem="Q5M-cg-NOt" firstAttribute="bottom" secondItem="gkL-Wb-RNw" secondAttribute="bottom" id="7lb-XK-4rK"/>
+                <constraint firstItem="txk-Eb-HDx" firstAttribute="centerX" secondItem="i5M-Pr-FkT" secondAttribute="centerX" id="G5n-di-KZh"/>
+                <constraint firstItem="ytX-Wh-2ZC" firstAttribute="top" secondItem="Q5M-cg-NOt" secondAttribute="top" id="IZw-Rx-8f2"/>
                 <constraint firstItem="Q5M-cg-NOt" firstAttribute="trailing" secondItem="gkL-Wb-RNw" secondAttribute="trailing" id="LOo-Y3-5JF"/>
-                <constraint firstItem="Q5M-cg-NOt" firstAttribute="trailing" secondItem="E2a-Yg-pmc" secondAttribute="trailing" id="ZRV-da-XZn"/>
-                <constraint firstItem="hXy-Yg-hyo" firstAttribute="leading" secondItem="Q5M-cg-NOt" secondAttribute="leading" id="hd8-7C-Mme"/>
+                <constraint firstItem="gkL-Wb-RNw" firstAttribute="top" secondItem="zhB-si-pk4" secondAttribute="bottom" constant="30" id="OCR-Tn-MVE"/>
+                <constraint firstItem="Q5M-cg-NOt" firstAttribute="trailing" secondItem="ytX-Wh-2ZC" secondAttribute="trailing" id="OPW-9Z-ldl"/>
+                <constraint firstItem="zhB-si-pk4" firstAttribute="top" secondItem="txk-Eb-HDx" secondAttribute="bottom" constant="15" id="b8X-P8-oRq"/>
+                <constraint firstItem="zhB-si-pk4" firstAttribute="centerX" secondItem="i5M-Pr-FkT" secondAttribute="centerX" id="fcZ-p6-cgm"/>
+                <constraint firstItem="ytX-Wh-2ZC" firstAttribute="leading" secondItem="Q5M-cg-NOt" secondAttribute="leading" id="pou-NQ-0U5"/>
                 <constraint firstItem="gkL-Wb-RNw" firstAttribute="leading" secondItem="Q5M-cg-NOt" secondAttribute="leading" id="tqP-Gy-EJE"/>
+                <constraint firstItem="txk-Eb-HDx" firstAttribute="top" secondItem="ytX-Wh-2ZC" secondAttribute="bottom" constant="20" id="v4J-0w-lYx"/>
             </constraints>
             <viewLayoutGuide key="safeArea" id="Q5M-cg-NOt"/>
+            <point key="canvasLocation" x="34.5" y="53.5"/>
         </view>
     </objects>
+    <resources>
+        <image name="result" width="375" height="168"/>
+    </resources>
 </document>

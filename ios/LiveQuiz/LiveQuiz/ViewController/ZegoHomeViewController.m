@@ -294,6 +294,9 @@ static NSString *const enterPlayingIdentifier = @"EnterPlayingIdentifier";
 
 #pragma mark - Access
 
+- (IBAction)logButton:(id)sender {
+}
+
 - (NSMutableArray *)roomList {
     if (!_roomList) {
         _roomList = [NSMutableArray array];

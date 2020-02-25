@@ -2,11 +2,20 @@
 //  ZegoUserCell.m
 //  LiveQuiz
 //
-//  Created by xia on 01/02/2018.
+//  Created by summeryxia on 01/02/2018.
 //  Copyright © 2018 zego. All rights reserved.
 //
 
 #import "ZegoUserCell.h"
+
+
+@interface ZegoUserCell ()
+
+@property (weak, nonatomic) IBOutlet UILabel *firstUserLabel;
+@property (weak, nonatomic) IBOutlet UILabel *secondUserLabel;
+@property (weak, nonatomic) IBOutlet UILabel *thirdUserLabel;
+
+@end
 
 @implementation ZegoUserCell
 
@@ -24,10 +33,16 @@
     return self;
 }
 
-- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
-    [super setSelected:selected animated:animated];
+- (void)setFirstUser:(NSString *)firstUser {
+    self.firstUserLabel.text = firstUser;
+}
 
-    // Configure the view for the selected state
+- (void)setSecondUser:(NSString *)secondUser {
+    self.secondUserLabel.text = secondUser;
+}
+
+- (void)setThirdUser:(NSString *)thirdUser {
+    self.thirdUserLabel.text = thirdUser;
 }
 
 @end

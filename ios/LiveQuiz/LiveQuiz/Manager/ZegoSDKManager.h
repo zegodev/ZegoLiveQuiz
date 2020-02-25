@@ -9,6 +9,9 @@
 #import <Foundation/Foundation.h>
 #import <ZegoLiveRoom/ZegoLiveRoom.h>
 
+extern NSString *ZegoLiveRoomApiInitCompleteNotification;
+extern NSString *ZegoLiveRoomApiInitErrorCodeKey;
+
 @interface ZegoSDKManager : NSObject
 
 // 获取 ZegoLiveRoomAPi 单例对象

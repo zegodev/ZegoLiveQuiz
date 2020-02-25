@@ -12,56 +12,81 @@
 
 @interface ZegoLiveRoomApi (DuoPublisher)
 
+typedef void(^ZegoUpdatePublishTargetCompletionBlock)(int errorCode, NSString *streamID);
+
 /**
  设置本地预览视图
  
+ * 注意：
+ * 1.建议在调用 -startPreview: 开启预览前，调用该 API 设置本地预览视图，才能在视图上预览采集的视频。
+ * 2.建议本地预览结束后，调用该 API 设置预览视图为 nil。
+ 
  @param view 用于渲染本地预览视频的视图
  @param index 推流 channel Index
- @return true 成功，false 失败
- @discussion 建议本地预览结束后，调用该 API 设置预览视图为 nil
+ @return 设置结果。true 成功，false 失败
  */
 - (bool)setPreviewView:(ZEGOView *)view channelIndex:(ZegoAPIPublishChannelIndex)index;
 
 /**
+ 设置预览控件的背景颜色
+ @param color 颜色,取值为0x00RRGGBB
+ @param index 推流 channel Index
+ @return true 表示调用成功，false 表示调用失败。
+ */
+- (bool)setPreviewViewBackgroundColor:(int)color channelIndex:(ZegoAPIPublishChannelIndex)index;
+
+/**
  启动本地预览
+ 
+ * 注意：
+ * 1.建议在启动本地预览前，调用 -setPreviewView:channelIndex: 设置本地预览视图。
+ * 2.在退出房间后，SDK 内部会停止预览，如果需要继续预览，需要重新调用本方法开启预览。
  
  @param index 推流 channel Index
  @return true 成功，false 失败
- @discussion 启动本地预览前，要调用 [ZegoLiveRoomApi (Publisher) -setPreviewView:] 设置本地预览视图
  */
 - (bool)startPreview:(ZegoAPIPublishChannelIndex)index;
 
 /**
- 结束本地预览
+ 停止本地预览
  
  @param index 推流 channel Index
  @return true 成功，false 失败
- @discussion 建议停止推流，或本地预览结束后，调用该 API 停止本地预览
  */
 - (bool)stopPreview:(ZegoAPIPublishChannelIndex)index;
 
 /**
- 开始发布直播
+ 开始指定通道发布直播（推流）
  
- @param streamID 流 ID
- @param title 直播名称，可选，默认为主播用户名
- @param flag 直播属性，参考 ZegoApiPublishFlag 定义
- @param index 推流 channel Index
- @return true 成功，false 失败
- @discussion 发布直播成功后，等待 [ZegoLivePublisherDelegate -onPublishStateUpdate:streamID:streamInfo:] 通知
+ * 注意：
+ * 1.可以登录房间成功后调用，发布直播后可以使用 [ZegoLiveRoomApi(Publisher2) -stopPublishing:] 停止发布直播。
+ * 2.发布直播 API 调用成功后，SDK 会在 [ZegoLivePublisherDelegate -onPublishStateUpdate:streamID:streamInfo:] 回调中通知发布结果，同一房间的其他人会在 [ZegoLiveRoomDelegate -onStreamUpdated:streams:roomID:] 回调中收到流新增通知。
+ * 3.为了满足客户的秒开播需求，该接口可以在调用登录房间接口后同步调用，如果登录房间失败，则直播发布也失败。
+ * 4.[ZegoLiveRoonApi(Publisher) -startPublishing] 既是主通道推流。
+ 
+ @param streamID 发布直播流的流ID，仅支持长度不超过 256 字节的数字、下划线、字母，streamID 需要在整个 AppID 内全局唯一
+ @param title 直播名称，可空，默认为主播用户名
+ @param flag 发布直播的模式
+ @param channelIndex 推流使用的推流通道
+ @return true 表示调用成功，false 表示调用失败。
  */
 - (bool)startPublishing2:(NSString *)streamID title:(NSString *)title flag:(int)flag channelIndex:(ZegoAPIPublishChannelIndex)index;
 
 /**
- 开始发布直播
+ 开始发布直播（指定通道推流）
  
- @param streamID 流 ID
- @param title 直播名称，可选，默认为主播用户名
- @param flag 直播属性，参考 ZegoApiPublishFlag 定义
- @param extraInfo 流附加信息
- @param index 推流 channel Index
- @return true 成功，false 失败
- @discussion 发布直播成功后，等待 [ZegoLivePublisherDelegate -onPublishStateUpdate:streamID:streamInfo:] 通知
+ * 注意：
+ * 1.可以登录房间成功后调用，发布直播后可以使用 [ZegoLiveRoomApi(Publisher2) -stopPublishing:] 停止发布直播。
+ * 2.发布直播 API 调用成功后，SDK 会在 [ZegoLivePublisherDelegate -onPublishStateUpdate:streamID:streamInfo:] 回调中通知发布结果，同一房间的其他人会在 [ZegoLiveRoomDelegate -onStreamUpdated:streams:roomID:] 回调中收到流新增通知。
+ * 3.为了满足客户的秒开播需求，该接口可以在调用登录房间接口后同步调用，如果登录房间失败，则直播发布也失败。
+ * 4.[ZegoLiveRoonApi(Publisher) -startPublishing] 既是主通道推流。
+ 
+ @param streamID 发布直播流的流ID，仅支持长度不超过 256 字节的数字、下划线、字母，streamID 需要在整个 AppID 内全局唯一
+ @param title 直播名称，可空，默认为主播用户名
+ @param flag 发布直播的模式，参考 ZegoApiPublishFlag 定义
+ @param extraInfo 流附加信息，可空，传空表示附加信息为空字符串，仅支持长度不超过 1024 字节的字符串
+ @param channelIndex 推流使用的推流通道
+ @return true 表示调用成功，false 表示调用失败。
  */
 - (bool)startPublishing2:(NSString *)streamID title:(NSString *)title flag:(int)flag extraInfo:(NSString *)extraInfo channelIndex:(ZegoAPIPublishChannelIndex)index;
 
@@ -71,7 +96,7 @@
  @param streamID 流 ID
  @param title 直播名称，可选，默认为主播用户名
  @param flag 直播属性，参考 ZegoApiPublishFlag 定义
- @param extraInfo 流附加信息
+ @param extraInfo 流附加信息, 最大为 1024 字节
  @param params 推流参数
  @param index 推流 channel Index
  @return true 成功，false 失败
@@ -80,9 +105,30 @@
 - (bool)startPublishing2:(NSString *)streamID title:(NSString *)title flag:(int)flag extraInfo:(NSString *)extraInfo params:(NSString *)params channelIndex:(ZegoAPIPublishChannelIndex)index;
 
 /**
+ 推流时是否发送视频数据。
+
+ @param mute true 不发送(仅预览)，false 发送
+ @param channelIndex 推流通道索引
+ @return 0 代表设置成功成功，否则设置失败
+ @attention 拉流端通过 OnRemoteCameraStatusUpdate 回调监听此状态是否改变;
+ @attention 仅拉 UDP 流时，才能接收到状态变更通知;
+ */
+- (int)muteVideoPublish:(bool)mute channelIndex:(ZegoAPIPublishChannelIndex)index;
+
+/**
+ 推流时是否发送音频数据。
+ 
+ @param mute true 不发送，false 发送
+ @param channelIndex 推流通道索引
+ @return 0 代表设置成功成功，否则设置失败
+ @attention 可以通过 ZegoLiveApiAudioRecordDelegate 回调获取本地音频数据
+ */
+- (int)muteAudioPublish:(bool)mute channelIndex:(ZegoAPIPublishChannelIndex)index;
+
+/**
  更新流附加信息
  
- @param extraInfo 流附加信息
+ @param extraInfo 流附加信息, 最大为 1024 字节
  @param index 推流 channel Index
  @return true 成功，false 失败
  @discussion 通常在主播方的 [ZegoLivePublisherDelegate -onPublishStateUpdate:streamID:streamInfo:] 通知中，或其他需更新流附加信息的场合下调用。更新流附加信息成功后，除调用方外，同一房间内的其他人会收到 [ZegoLiveRoomDelegate -onStreamExtraInfoUpdated:roomID] 通知
@@ -90,22 +136,46 @@
 - (bool)updateStreamExtraInfo:(NSString *)extraInfo channelIndex:(ZegoAPIPublishChannelIndex)index;
 
 /**
- 停止直播
+ 停止指定通道发布直播（推流）
  
- @param index 推流 channel Index
- @return true 成功，false 失败
- @discussion 注意混流结束后，要先调用 [-updateMixInputStreams] 将流列表清空结束混流，然后调用 stopPublishing 结束直播
+ * 注意：
+ * 1.用于停止已发布的直播，可以在发布直播后调用。
+ * 2.停止发布直播不会触发 [ZegoLivePublisherDelegate -onPublishStateUpdate:streamID:streamInfo:] 回调。
+ 
+ @param index 推流使用的推流通道
+ @return true 表示调用成功，false 表示调用失败。
  */
 - (bool)stopPublishing:(ZegoAPIPublishChannelIndex)index;
 
 /**
  自定义推流配置
  
- @param config 配置信息 key-value，目前 key 仅支持 kPublishCustomTarget ，value 为用户自定义的转推 RTMP 地址。参考 ZegoLiveRoomApiDefines.h 中相关定义
+ @param config 配置信息 key-value，目前 key 仅支持 kPublishCustomTarget ，value 为用户自定义的转推 RTMP 地址。参考 zego-api-defines-oc.h 中相关定义
  @param index 推流 channel Index
  @discussion 开发者如果使用自定义转推功能，推流开始前，必须调用此接口设置转推 RTMP 地址（SDK 推流方式必须为 UDP，转推地址必须为 RTMP），否则可能导致转推失败。
  */
 - (void)setPublishConfig:(NSDictionary *)config channelIndex:(ZegoAPIPublishChannelIndex)index;
+
+/**
+ 添加已发布直播的转推地址
+
+ @param target 添加的转推地址（支持rtmp/avertp）
+ @param streamID 正在发布的直播流ID
+ @param completionBlock 完成回调
+ @return true 表示调用成功，false 表示调用失败。
+ */
+- (bool)addPublishTarget:(NSString *)target streamID:(NSString *)streamID completion:(ZegoUpdatePublishTargetCompletionBlock)completionBlock;
+
+/**
+ 删除转推地址
+ 
+ @param strTarget 转推地址（支持rtmp/avertp）
+ @param pszStreamID 推流ID
+ @param completionBlock 删除转推地址回调
+ @return true 成功，false 失败
+ @attention 在InitSDK之后调用
+ */
+- (bool)deletePublishTarget:(NSString *)target streamID:(NSString *)streamID completion:(ZegoUpdatePublishTargetCompletionBlock)completionBlock;
 
 /**
  设置视频配置
@@ -117,14 +187,31 @@
  */
 - (bool)setAVConfig:(ZegoAVConfig *)config channelIndex:(ZegoAPIPublishChannelIndex)index;
 
+/**
+ 设置视频关键帧间隔
+ 
+ * 注意：推流前调用有效。
+ 
+ @param intervalSecond 关键帧间隔，单位为秒，默认 2 秒
+ @param index 推流使用的推流通道
+ @return true 表示调用成功，false 表示调用失败
+ */
+- (bool)setVideoKeyFrameInterval:(int)intervalSecond channelIndex:(ZegoAPIPublishChannelIndex)index;
+
 #if TARGET_OS_IPHONE
 /**
  设置手机方向
  
+ * 本设置用于校正输出视频朝向，默认竖屏。建议在预览和推流之前设置好方向。
+ * 不建议在推流过程中旋转画面，原因：
+ * 1. 如果刚开始为竖屏开播，此时旋转为横屏，但是分辨率仍然是竖屏的，会导致横屏后，画面放大的效果(按照等比填充的模式) 或者 上下黑边的效果(按照等比缩放的模式)，除非旋转为横屏后，画面的分辨率也做修改。
+ * 2. 直播过程中修改分辨率的话，会导致录制文件(回放)有异常，因此不建议中途旋转画面。
+ 
  @param orientation 手机方向
  @param index 推流 channel Index
  @return true 成功，false 失败
- @discussion 本设置用于校正主播输出视频朝向
+ @see -startPreview:
+ @see -startPublishing2:title:flag:channelIndex:
  */
 - (bool)setAppOrientation:(UIInterfaceOrientation)orientation channelIndex:(ZegoAPIPublishChannelIndex)index;
 #endif
@@ -191,22 +278,27 @@
 - (bool)setFilter:(ZegoFilter)filter channelIndex:(ZegoAPIPublishChannelIndex)index;
 
 /**
- 设置本地预览视频视图的模式
+ 设置本地预览视图的模式
  
- @param mode 模式，参考 ZegoVideoViewMode 定义。默认 ZegoVideoViewModeScaleAspectFill
+ * 视图模式默认为 ZegoVideoViewModeScaleAspectFill。
+ 
+ @param mode 视图模式。详见 ZegoVideoViewMode 定义
  @param index 推流 channel Index
  @return true 成功，false 失败
- @discussion 推流开始前调用本 API 进行参数配置
  */
 - (bool)setPreviewViewMode:(ZegoVideoViewMode)mode channelIndex:(ZegoAPIPublishChannelIndex)index;
 
+
 /**
- 设置预览渲染朝向
+ 设置预览渲染图像的朝向
  
- @param rotate 旋转角度。默认 0
- @param index 推流 channel Index
+ * 注意：
+ * 1.只能设置(0/90/180/270)，默认为0。
+ * 2.该设置只是设置预览渲染图像的朝向，不会改变推流时的图像朝向。
+ 
+ @param rotate 逆时针旋转角度
  @return true 成功，false 失败
- @discussion 推流时可调用本 API 进行参数配置。使用 setAppOrientation 替代
+ @see -setAppOrientation:channelIndex:
  */
 - (bool)setPreviewRotation:(int)rotate channelIndex:(ZegoAPIPublishChannelIndex)index;
 
@@ -231,6 +323,18 @@
 - (bool)enableCaptureMirror:(bool)enable channelIndex:(ZegoAPIPublishChannelIndex)index;
 
 /**
+ 设置预览和推流镜像
+ 
+ * 预览镜像只对前置摄像头有效，后置无效。
+ * 默认预览启用镜像，推流不启用镜像（即 ZegoVideoMirrorModePreviewMirrorPublishNoMirror）
+ 
+ @param mode 镜像模式，详见 ZegoVideoMirrorMode
+ @param index 推流 channel Index
+ @return true 成功，false 失败
+ */
+- (bool)setVideoMirrorMode:(ZegoVideoMirrorMode)mode channelIndex:(ZegoAPIPublishChannelIndex)index;
+
+/**
  是否开启码率控制
  
  @param enable true 启用，false 不启用。默认不启用
@@ -241,33 +345,44 @@
 - (bool)enableRateControl:(bool)enable channelIndex:(ZegoAPIPublishChannelIndex)index;
 
 /**
- 是否使用前置摄像头
+ 设置编码器码率控制策略
  
- @param bFront true 使用，false 不使用。默认 true
+ @param strategy 策略配置，参考 ZegoVideoEncoderRateControlStrategy
+ @param encoderCRF 当策略为恒定质量（ZEGOAPI_RC_VBR/ZEGOAPI_RC_CRF）有效，取值范围 [0~51]，越小质量越好，但是码率会相应变大。建议取值范围 [18, 28]
+ @param index 推流 channel Index
+ */
+- (void)setVideoEncoderRateControlConfig:(ZegoAPIVideoEncoderRateControlStrategy)strategy encoderCRF:(int)encoderCRF channelIndex:(ZegoAPIPublishChannelIndex)index;
+
+/**
+ 是否使用前置摄像头，否则使用后置。
+ 
+ * 如果使用前置摄像头，本地预览和推流都将使用前置摄像头拍摄的数据。SDK 默认使用前置摄像头。
+ 
+ @param bFront 是否使用前置摄像头
  @param index 推流 channel Index
  @return true 成功，false 失败
- @discussion 推流时可调用本 API 进行参数配置
  */
 - (bool)setFrontCam:(bool)bFront channelIndex:(ZegoAPIPublishChannelIndex)index;
 
-
 /**
- 开启视频采集
+ 是否开启视频采集
  
- @param bEnable true 打开，false 关闭。默认 true
+ * 开启视频采集后，预览视图才能显示预览画面，推流时才包含采集的视频数据。SDK 默认开启视频采集。
+ 
+ @param bEnable 是否开启
  @param index 推流 channel Index
- @return true 成功，false 失败
- @discussion 推流时可调用本 API 进行参数配置
+ @return 设置结果。true 成功，false 失败
  */
 - (bool)enableCamera:(bool)bEnable channelIndex:(ZegoAPIPublishChannelIndex)index;
 
 /**
- 开关手电筒
+ 是否开启手电筒
  
- @param bEnable true 打开，false 关闭。默认 false
+ * 推流时可调用本 API 进行参数配置。SDK 默认关闭手电筒。
+ 
+ @param bEnable 是否开启
  @param index 推流 channel Index
  @return true 成功，false 失败
- @discussion 推流时可调用本 API 进行参数配置
  */
 - (bool)enableTorch:(bool)bEnable channelIndex:(ZegoAPIPublishChannelIndex)index;
 
@@ -308,24 +423,6 @@
 - (void)setPreviewWaterMarkRect:(CGRect)waterMarkRect channelIndex:(ZegoAPIPublishChannelIndex)index;
 
 /**
- 设置外部采集模块
- 
- @param factory 工厂对象，遵循 ZegoVideoCaptureFactory 协议的对象
- @param index 推流 channel Index
- @discussion 必须在 InitSDK 前调用，并且不能置空
- */
-+ (void)setVideoCaptureFactory:(id<ZegoVideoCaptureFactory>)factory channelIndex:(ZegoAPIPublishChannelIndex)index;
-
-/**
- 设置外部滤镜模块
- 
- @param factory 工厂对象，遵循 ZegoVideoFilterFactory 协议的对象
- @param index 推流 channel Index
- @discussion 必须在 Init 前调用，并且不能置空
- */
-+ (void)setVideoFilterFactory:(id<ZegoVideoFilterFactory>)factory channelIndex:(ZegoAPIPublishChannelIndex)index;
-
-/**
  发送媒体次要信息开关
  
  @param start true 开启, false 关闭
@@ -334,6 +431,18 @@
  @discussion onlyAudioPublish 开关在 start 开关开启时才生效
  */
 - (void)setMediaSideFlags:(bool)start onlyAudioPublish:(bool)onlyAudioPublish channelIndex:(ZegoAPIPublishChannelIndex)index;
+
+/**
+ 发送媒体次要信息开关
+ 
+ @param start true 开启, false 关闭
+ @param onlyAudioPublish true 纯音频直播，不传输视频数据, false 音视频直播，传输视频数据
+ @param mediaInfoType 请参考 MediaInfoType 定义，建议使用 SeiZegoDefined
+ @param seiSendType 请参考 SeiSendType 定义，此参数只对发送SEI时有效，当mediaInfoType为 SideInfoZegoDefined 时此参数无效，当发送SEI时建议使用 SeiSendInVideoFrame
+ @param index 推流 channel Index
+ @discussion onlyAudioPublish 开关在 start 开关开启时才生效
+ */
+- (void)setMediaSideFlags:(bool)start onlyAudioPublish:(bool)onlyAudioPublish mediaInfoType:(int)mediaInfoType seiSendType:(int)seiSendType channelIndex:(ZegoAPIPublishChannelIndex)index;
 
 /**
  发送媒体次要信息
@@ -345,6 +454,28 @@
  @discussion 主播端开启媒体次要信息开关，并调用此 API 发送媒体次要信息后，观众端在 [ZegoLiveRoomApi (Player) -setMediaSideCallback:] 设置的回调中获取媒体次要信息
  */
 - (void)sendMediaSideInfo:(const unsigned char *)inData dataLen:(int)dataLen packet:(bool)packet channelIndex:(ZegoAPIPublishChannelIndex)index;
+
+/**
+ 给推流通道设置扩展参数，一般不建议修改
+
+ @param param_config 参数配置信息
+ @param idx 推流通道索引
+
+ @attention 配置项写法，例如 "zego_channel_param_key_video_swencoder_usage=camera", 等号后面值的类型要看下面每一项的定义
+ @attention "zego_channel_param_key_video_swencoder_usage", string value: camera|screen，设置编码时使用场景模式，仅使用 OpenH264 编码时有效
+ @attention "zego_channel_param_key_video_x264_config_tune", string value: animation, 设置编码的 tune 值，目前只支持 animation，仅使用 X264 编码时有效
+ @attention 初始化 SDK 之后推流前设置才生效，推流过程中设置无效
+*/
+- (void)setChannelExtraParam:(NSString *)param_config channelIndex:(ZegoAPIPublishChannelIndex)channelIndex;
+
+/**
+ 获取当前推流通道使用的 AVCaptureDevice 对象
+
+ @param idx 推流通道索引
+
+ @attention 必须在预览之后或者推流之后才能调用
+*/
+- (AVCaptureDevice*)getAVCaptureDevice:(ZegoAPIPublishChannelIndex)channelIndex;
 
 @end
 

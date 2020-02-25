@@ -59,7 +59,6 @@
 
 - (void)awakeFromNib {
     [super awakeFromNib];
-    NSLog(@"%s awakeFromNib", __func__);
     
     self.countdownView.layer.cornerRadius = self.countdownView.layer.bounds.size.width / 2.0;
     self.countdownLabel.layer.cornerRadius = self.countdownLabel.layer.bounds.size.width / 2.0;

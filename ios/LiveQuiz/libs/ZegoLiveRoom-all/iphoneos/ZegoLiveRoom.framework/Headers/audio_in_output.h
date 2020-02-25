@@ -37,6 +37,19 @@ namespace AVE
      */
     struct AudioFrame
     {
+        AudioFrame()
+        {
+            frameType = 0;
+            samples = 0;
+            bytesPerSample = 0;
+            channels = 0;
+            sampleRate = 0;
+            timeStamp = 0.0;
+            configLen = 0;
+            bufLen = 0;
+            buffer = 0;
+        }
+        
         int frameType;              //refer to enum FrameType
         int samples;                //PCM:capture pcm samples at this input.  AAC:aac encode one frame need samples
         int bytesPerSample;         //bytes per sample = 2 * channels, current bit depth only support 16bit(2 bytes).
@@ -61,7 +74,7 @@ namespace AVE
     };
 
     
-    struct ExtPrepSet
+    struct ExtAudioProcSet
     {
         bool bEncode;           /*
                                  bEncode == false, external prep output PCM data.
@@ -70,16 +83,17 @@ namespace AVE
 		int nSampleRate;        //pcm capture or encode sample rate, if 0 use sdk inner sample rate..
         int nChannel;           //pcm capture or encode channels. if 0 use sdk inner channels.
 		int nSamples;           /*
-                                 bEncode == false, if nSamples == 0. use sdk inner samples, push 20ms audio data to external prep module once.
+                                 bEncode == false, if nSamples == 0. use sdk inner samples, push 10ms audio data to external prep module once.
 								                   else push nSamples(nSamples >= 160 AND nSamples <= 2048) audio data to external prep module once,
-												   some audio processing algorithm may need length not 20ms.
+												   some audio processing algorithm may need length not 10ms.
 														
                                  bEncode == true, AAC encode one frame need samples(480/512/1024/1960/2048).
                                 */
 		
     };
     
-    typedef void(*OnPrepCallback)(const AudioFrame& inFrame, AudioFrame& outFrame);
+    typedef struct ExtAudioProcSet ExtPrepSet;
+	typedef void(*OnPrepCallback)(const AudioFrame& inFrame, AudioFrame& outFrame);
 
     /*
      const AudioFrame& inFrame：
@@ -108,6 +122,12 @@ namespace AVE
      Even without any treatment, you need copy data from inFrame to outFrame,else the outFrame.buffer is empty data(all zeros/000000....0000);
      */
     
+    typedef struct ExtAudioProcSet ExtPostpSet;
+	typedef void(*OnPostpCallback)(const char* streamId, const AudioFrame& inFrame, AudioFrame& outFrame);
+	/* for audio post-process only support now:
+	   ExtPostpSet.bEncode = false;
+	*/
+
 }
 
 #endif

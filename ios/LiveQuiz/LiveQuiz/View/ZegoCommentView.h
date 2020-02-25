@@ -10,15 +10,14 @@
 
 @protocol ZegoCommentViewDelegate <NSObject>
 
-- (void)onShareButtonClicked:(id)sender;
+- (void)onLogButtonClicked:(id)sender;
 
 @end
 
 @interface ZegoCommentView : UIView
 
 @property (weak, nonatomic) IBOutlet UITextField *commentInput;
-@property (weak, nonatomic) IBOutlet UILabel *reviveLabel;
-@property (weak, nonatomic) IBOutlet UIButton *shareButton;
+@property (weak, nonatomic) IBOutlet UIButton *logButton;
 
 @property (nonatomic, weak) id<ZegoCommentViewDelegate> delegate;
 

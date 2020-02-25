@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		16095751200F213A005ADC96 /* ZegoLiveRoom.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1609574F200F2106005ADC96 /* ZegoLiveRoom.framework */; };
-		16095752200F213A005ADC96 /* ZegoLiveRoom.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1609574F200F2106005ADC96 /* ZegoLiveRoom.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		16095761200F3694005ADC96 /* ZegoLogTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1609575E200F3694005ADC96 /* ZegoLogTableViewController.m */; };
 		16095766200F4D8C005ADC96 /* ZegoMessageCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 16095765200F4D8C005ADC96 /* ZegoMessageCell.xib */; };
 		16095769200F4DC8005ADC96 /* ZegoMessageCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 16095768200F4DC8005ADC96 /* ZegoMessageCell.m */; };
@@ -39,9 +37,13 @@
 		1680DA87200F016300722D02 /* ZegoRoomInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 1680DA86200F016300722D02 /* ZegoRoomInfo.m */; };
 		1680DA8B200F01CA00722D02 /* ZegoSDKManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1680DA8A200F01CA00722D02 /* ZegoSDKManager.m */; };
 		1680DA8E200F021E00722D02 /* ZegoSetting.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1680DA8D200F021E00722D02 /* ZegoSetting.mm */; };
+		169DFCF12030443A000517CE /* ZegoSettingTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 169DFCEE2030443A000517CE /* ZegoSettingTableViewController.m */; };
+		169DFCF22030443A000517CE /* ZegoSettingTableViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 169DFCEF2030443A000517CE /* ZegoSettingTableViewController.storyboard */; };
 		16A2A5E6201596B000BD6E4D /* UILabel+ChangeTextSpace.m in Sources */ = {isa = PBXBuildFile; fileRef = 16A2A5E5201596B000BD6E4D /* UILabel+ChangeTextSpace.m */; };
 		16A2A5E920159A5B00BD6E4D /* iconfont.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 16A2A5E12012294A00BD6E4D /* iconfont.ttf */; };
 		16A2A5EC20159BB500BD6E4D /* ZegoLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 16A2A5EB20159BB400BD6E4D /* ZegoLabel.m */; };
+		16BEBAAC203186E5009953E0 /* ZegoNoRoomCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 16BEBAAA203186E5009953E0 /* ZegoNoRoomCell.m */; };
+		16BEBAAD203186E5009953E0 /* ZegoNoRoomCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 16BEBAAB203186E5009953E0 /* ZegoNoRoomCell.xib */; };
 		16E77E552011D4730070C784 /* Bugly.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16E77E542011D4730070C784 /* Bugly.framework */; };
 		16E77E582011D4C20070C784 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16E77E572011D4C20070C784 /* SystemConfiguration.framework */; };
 		16E77E5A2011D4C90070C784 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16E77E592011D4C90070C784 /* Security.framework */; };
@@ -72,6 +74,12 @@
 		16E77EAB2011DE5C0070C784 /* YYTextWeakProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 16E77E902011DE5C0070C784 /* YYTextWeakProxy.m */; };
 		16E77EAC2011DE5C0070C784 /* YYLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 16E77E922011DE5C0070C784 /* YYLabel.m */; };
 		16E77EAD2011DE5C0070C784 /* YYTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 16E77E952011DE5C0070C784 /* YYTextView.m */; };
+		16EEBA562030466000FC588F /* ZegoShareLogViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 16EEBA552030466000FC588F /* ZegoShareLogViewController.m */; };
+		16EEBA582030469000FC588F /* SSZipArchive.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16EEBA572030468F00FC588F /* SSZipArchive.framework */; };
+		8691947C23FE90F1008E1E73 /* ZGAppSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8691947A23FE90DD008E1E73 /* ZGAppSupport.framework */; };
+		8691947D23FE90F1008E1E73 /* ZGAppSupport.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8691947A23FE90DD008E1E73 /* ZGAppSupport.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		8691948623FE9205008E1E73 /* ZegoLiveRoom.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8691948323FE91F5008E1E73 /* ZegoLiveRoom.framework */; };
+		8691948723FE9205008E1E73 /* ZegoLiveRoom.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8691948323FE91F5008E1E73 /* ZegoLiveRoom.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -81,7 +89,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				16095752200F213A005ADC96 /* ZegoLiveRoom.framework in Embed Frameworks */,
+				8691948723FE9205008E1E73 /* ZegoLiveRoom.framework in Embed Frameworks */,
+				8691947D23FE90F1008E1E73 /* ZGAppSupport.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -89,7 +98,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		1609574F200F2106005ADC96 /* ZegoLiveRoom.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ZegoLiveRoom.framework; sourceTree = "<group>"; };
 		1609575D200F3694005ADC96 /* ZegoLogTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZegoLogTableViewController.h; sourceTree = "<group>"; };
 		1609575E200F3694005ADC96 /* ZegoLogTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZegoLogTableViewController.m; sourceTree = "<group>"; };
 		16095765200F4D8C005ADC96 /* ZegoMessageCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ZegoMessageCell.xib; sourceTree = "<group>"; };
@@ -142,11 +150,17 @@
 		1680DA8A200F01CA00722D02 /* ZegoSDKManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZegoSDKManager.m; sourceTree = "<group>"; };
 		1680DA8C200F021E00722D02 /* ZegoSetting.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZegoSetting.h; sourceTree = "<group>"; };
 		1680DA8D200F021E00722D02 /* ZegoSetting.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ZegoSetting.mm; sourceTree = "<group>"; };
+		169DFCEE2030443A000517CE /* ZegoSettingTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZegoSettingTableViewController.m; sourceTree = "<group>"; };
+		169DFCEF2030443A000517CE /* ZegoSettingTableViewController.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = ZegoSettingTableViewController.storyboard; sourceTree = "<group>"; };
+		169DFCF02030443A000517CE /* ZegoSettingTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZegoSettingTableViewController.h; sourceTree = "<group>"; };
 		16A2A5E12012294A00BD6E4D /* iconfont.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = iconfont.ttf; sourceTree = "<group>"; };
 		16A2A5E4201596B000BD6E4D /* UILabel+ChangeTextSpace.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UILabel+ChangeTextSpace.h"; sourceTree = "<group>"; };
 		16A2A5E5201596B000BD6E4D /* UILabel+ChangeTextSpace.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UILabel+ChangeTextSpace.m"; sourceTree = "<group>"; };
 		16A2A5EA20159BB400BD6E4D /* ZegoLabel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZegoLabel.h; sourceTree = "<group>"; };
 		16A2A5EB20159BB400BD6E4D /* ZegoLabel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZegoLabel.m; sourceTree = "<group>"; };
+		16BEBAA9203186E5009953E0 /* ZegoNoRoomCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZegoNoRoomCell.h; sourceTree = "<group>"; };
+		16BEBAAA203186E5009953E0 /* ZegoNoRoomCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZegoNoRoomCell.m; sourceTree = "<group>"; };
+		16BEBAAB203186E5009953E0 /* ZegoNoRoomCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ZegoNoRoomCell.xib; sourceTree = "<group>"; };
 		16E77E542011D4730070C784 /* Bugly.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Bugly.framework; sourceTree = "<group>"; };
 		16E77E572011D4C20070C784 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		16E77E592011D4C90070C784 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
@@ -202,6 +216,11 @@
 		16E77E932011DE5C0070C784 /* YYText.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YYText.h; sourceTree = "<group>"; };
 		16E77E942011DE5C0070C784 /* YYTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YYTextView.h; sourceTree = "<group>"; };
 		16E77E952011DE5C0070C784 /* YYTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YYTextView.m; sourceTree = "<group>"; };
+		16EEBA542030466000FC588F /* ZegoShareLogViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZegoShareLogViewController.h; sourceTree = "<group>"; };
+		16EEBA552030466000FC588F /* ZegoShareLogViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZegoShareLogViewController.m; sourceTree = "<group>"; };
+		16EEBA572030468F00FC588F /* SSZipArchive.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = SSZipArchive.framework; sourceTree = "<group>"; };
+		8691947A23FE90DD008E1E73 /* ZGAppSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ZGAppSupport.framework; sourceTree = "<group>"; };
+		8691948323FE91F5008E1E73 /* ZegoLiveRoom.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ZegoLiveRoom.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -210,11 +229,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				16E77E5E2011D4D90070C784 /* libc++.tbd in Frameworks */,
+				8691947C23FE90F1008E1E73 /* ZGAppSupport.framework in Frameworks */,
+				16EEBA582030469000FC588F /* SSZipArchive.framework in Frameworks */,
 				16E77E5C2011D4D00070C784 /* libz.tbd in Frameworks */,
+				8691948623FE9205008E1E73 /* ZegoLiveRoom.framework in Frameworks */,
 				16E77E5A2011D4C90070C784 /* Security.framework in Frameworks */,
 				16E77E582011D4C20070C784 /* SystemConfiguration.framework in Frameworks */,
 				16E77E552011D4730070C784 /* Bugly.framework in Frameworks */,
-				16095751200F213A005ADC96 /* ZegoLiveRoom.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -235,6 +256,8 @@
 		1609575C200F3694005ADC96 /* Log */ = {
 			isa = PBXGroup;
 			children = (
+				16EEBA542030466000FC588F /* ZegoShareLogViewController.h */,
+				16EEBA552030466000FC588F /* ZegoShareLogViewController.m */,
 				1609575D200F3694005ADC96 /* ZegoLogTableViewController.h */,
 				1609575E200F3694005ADC96 /* ZegoLogTableViewController.m */,
 			);
@@ -258,6 +281,9 @@
 				1673CC1420235C2500392B06 /* ZegoUserCell.h */,
 				1673CC1520235C2500392B06 /* ZegoUserCell.m */,
 				1673CC1620235C2500392B06 /* ZegoUserCell.xib */,
+				16BEBAA9203186E5009953E0 /* ZegoNoRoomCell.h */,
+				16BEBAAA203186E5009953E0 /* ZegoNoRoomCell.m */,
+				16BEBAAB203186E5009953E0 /* ZegoNoRoomCell.xib */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -265,8 +291,9 @@
 		1680DA4B200EF0F100722D02 = {
 			isa = PBXGroup;
 			children = (
+				8691947923FE90DD008E1E73 /* AppSupportLibs */,
 				1680DA93200F034A00722D02 /* thirdLib */,
-				1680DA92200F033600722D02 /* libs */,
+				8691948123FE91F5008E1E73 /* libs */,
 				1680DA56200EF0F100722D02 /* LiveQuiz */,
 				1680DA55200EF0F100722D02 /* Products */,
 				16E77E562011D4C10070C784 /* Frameworks */,
@@ -323,6 +350,9 @@
 				1673CC072021CD4E00392B06 /* ZegoFinalStatViewController.h */,
 				1673CC082021CD4E00392B06 /* ZegoFinalStatViewController.m */,
 				1673CC092021CD4E00392B06 /* ZegoFinalStatViewController.xib */,
+				169DFCF02030443A000517CE /* ZegoSettingTableViewController.h */,
+				169DFCEE2030443A000517CE /* ZegoSettingTableViewController.m */,
+				169DFCEF2030443A000517CE /* ZegoSettingTableViewController.storyboard */,
 			);
 			path = ViewController;
 			sourceTree = "<group>";
@@ -342,17 +372,10 @@
 			path = Model;
 			sourceTree = "<group>";
 		};
-		1680DA92200F033600722D02 /* libs */ = {
-			isa = PBXGroup;
-			children = (
-				1609574F200F2106005ADC96 /* ZegoLiveRoom.framework */,
-			);
-			path = libs;
-			sourceTree = "<group>";
-		};
 		1680DA93200F034A00722D02 /* thirdLib */ = {
 			isa = PBXGroup;
 			children = (
+				16EEBA572030468F00FC588F /* SSZipArchive.framework */,
 				16E77E542011D4730070C784 /* Bugly.framework */,
 			);
 			path = thirdLib;
@@ -460,6 +483,22 @@
 			path = Utility;
 			sourceTree = "<group>";
 		};
+		8691947923FE90DD008E1E73 /* AppSupportLibs */ = {
+			isa = PBXGroup;
+			children = (
+				8691947A23FE90DD008E1E73 /* ZGAppSupport.framework */,
+			);
+			path = AppSupportLibs;
+			sourceTree = "<group>";
+		};
+		8691948123FE91F5008E1E73 /* libs */ = {
+			isa = PBXGroup;
+			children = (
+				8691948323FE91F5008E1E73 /* ZegoLiveRoom.framework */,
+			);
+			path = libs;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -528,9 +567,11 @@
 			files = (
 				1673CC0B2021CD4E00392B06 /* ZegoFinalStatViewController.xib in Resources */,
 				16A2A5E920159A5B00BD6E4D /* iconfont.ttf in Resources */,
+				169DFCF22030443A000517CE /* ZegoSettingTableViewController.storyboard in Resources */,
 				1609577A201090D6005ADC96 /* ZegoCommentView.xib in Resources */,
 				16095778201049E8005ADC96 /* ZegoMessageViewController.xib in Resources */,
 				1609577F2010DC32005ADC96 /* ZegoQuizView.xib in Resources */,
+				16BEBAAD203186E5009953E0 /* ZegoNoRoomCell.xib in Resources */,
 				1673CC1820235C2500392B06 /* ZegoUserCell.xib in Resources */,
 				16095766200F4D8C005ADC96 /* ZegoMessageCell.xib in Resources */,
 				1680DA78200EF75D00722D02 /* ZegoQuizViewController.xib in Resources */,
@@ -555,7 +596,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = "/usr/bin/env python";
-			shellScript = "import os\nimport subprocess\n\naction = os.getenv('ACTION')\nconfiguration = os.getenv('CONFIGURATION')\nif action == \"install\":\n    exit(0)\nif configuration == \"Release\":\n    exit(0)\n\ncurrent_folder = os.getenv('PROJECT_DIR')\ncopy_framework_path = os.path.join(current_folder, \"..\", \"copy_framework_new.py\")\n\nif os.path.exists(copy_framework_path):\n    log_file = os.path.join(current_folder, \"..\", \"log.txt\")\n    with open(log_file, \"w\") as outfile:\n        arguments = [copy_framework_path, '-repackage']\n        subprocess.call(arguments, stdout=outfile)";
+			shellScript = "import os\nimport subprocess\n\naction = os.getenv('ACTION')\nconfiguration = os.getenv('CONFIGURATION')\nif action == \"install\":\n    exit(0)\nif configuration == \"Release\":\n    exit(0)\n\ncurrent_folder = os.getenv('PROJECT_DIR')\ncopy_framework_path = os.path.join(current_folder, \"..\", \"copy_framework_new.py\")\n\nif os.path.exists(copy_framework_path):\n    log_file = os.path.join(current_folder, \"..\", \"log.txt\")\n    with open(log_file, \"w\") as outfile:\n        arguments = [copy_framework_path, '-repackage']\n        subprocess.call(arguments, stdout=outfile)\n";
 		};
 		165507A620284F3F007C30B7 /* Copy Framework */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -590,6 +631,7 @@
 				16E77EA82011DE5C0070C784 /* YYTextAsyncLayer.m in Sources */,
 				16E77E9A2011DE5C0070C784 /* YYTextKeyboardManager.m in Sources */,
 				1680DA70200EF61F00722D02 /* ZegoHomeViewController.m in Sources */,
+				16EEBA562030466000FC588F /* ZegoShareLogViewController.m in Sources */,
 				16095769200F4DC8005ADC96 /* ZegoMessageCell.m in Sources */,
 				16E77EA62011DE5C0070C784 /* UIPasteboard+YYText.m in Sources */,
 				1673CC0E20230B1E00392B06 /* ZegoActivityInfo.m in Sources */,
@@ -597,6 +639,7 @@
 				16E77E972011DE5C0070C784 /* YYTextDebugOption.m in Sources */,
 				16A2A5EC20159BB500BD6E4D /* ZegoLabel.m in Sources */,
 				1680DA5C200EF0F100722D02 /* ViewController.m in Sources */,
+				16BEBAAC203186E5009953E0 /* ZegoNoRoomCell.m in Sources */,
 				16095777201049E8005ADC96 /* ZegoMessageViewController.m in Sources */,
 				16E77EAD2011DE5C0070C784 /* YYTextView.m in Sources */,
 				1680DA8B200F01CA00722D02 /* ZegoSDKManager.m in Sources */,
@@ -604,6 +647,7 @@
 				16E77E9E2011DE5C0070C784 /* YYTextSelectionView.m in Sources */,
 				1680DA77200EF75D00722D02 /* ZegoQuizViewController.m in Sources */,
 				16E77E9F2011DE5C0070C784 /* YYTextArchiver.m in Sources */,
+				169DFCF12030443A000517CE /* ZegoSettingTableViewController.m in Sources */,
 				16E77E9D2011DE5C0070C784 /* YYTextMagnifier.m in Sources */,
 				16E77E962011DE5C0070C784 /* YYTextContainerView.m in Sources */,
 				16E77EA42011DE5C0070C784 /* NSAttributedString+YYText.m in Sources */,
@@ -759,16 +803,18 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 3WR2G89LR2;
+				DEVELOPMENT_TEAM = B82BHJ5H89;
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/libs",
 					"$(PROJECT_DIR)/thirdLib",
+					"$(PROJECT_DIR)/AppSupportLibs",
 				);
 				INFOPLIST_FILE = LiveQuiz/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.zego.LiveQuiz;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zego.LiveQuiz.appstore;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -779,16 +825,18 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 3WR2G89LR2;
+				DEVELOPMENT_TEAM = B82BHJ5H89;
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/libs",
 					"$(PROJECT_DIR)/thirdLib",
+					"$(PROJECT_DIR)/AppSupportLibs",
 				);
 				INFOPLIST_FILE = LiveQuiz/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.zego.LiveQuiz;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zego.LiveQuiz.appstore;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

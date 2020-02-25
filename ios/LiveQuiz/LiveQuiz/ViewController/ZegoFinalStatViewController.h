@@ -2,7 +2,7 @@
 //  ZegoFinalStatViewController.h
 //  LiveQuiz
 //
-//  Created by xia on 31/01/2018.
+//  Created by summeryxia on 31/01/2018.
 //  Copyright © 2018 zego. All rights reserved.
 //
 

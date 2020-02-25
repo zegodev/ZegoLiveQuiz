@@ -77,6 +77,16 @@
 - (bool)stopPlayingStream:(NSString *)streamID;
 
 /**
+ 设置拉流优先级的权重，被置为 focus 的流，优先保证其质量。
+
+ @param streamID 流 ID，当为空时，恢复所有流的权重
+ @return true: 设置成功, false 设置失败
+ @attention 默认所有流的权重相同。
+ @attention 在本地网络不好的时候，保证focus流的同时，可能造成其他的卡顿更多。
+ */
+- (bool)setPlayStreamFocus:(NSString *)streamID;
+
+/**
  请求连麦
  
  @param blk 回调 block
@@ -119,6 +129,7 @@
  @param bOn true 打开，false 关闭。默认 true
  @return true 成功，false 失败
  @discussion 设置为关闭后，扬声器无声音，耳机仍有声音输出
+ @discussion 在推流之前设置, 且 setAudioDeviceMode 设置为 ZEGOAPI_AUDIO_DEVICE_MODE_COMMUNICATION 或 ZEGOAPI_AUDIO_DEVICE_MODE_COMMUNICATION2 或 ZEGOAPI_AUDIO_DEVICE_MODE_COMMUNICATION3 时有效
  */
 - (bool)setBuiltInSpeakerOn:(bool)bOn;
 
@@ -135,7 +146,7 @@
  设置指定拉流的播放音量
  
  @param volume 音量取值范围为(0, 100)，数值越大，音量越大。默认 100
- @streamID  流ID. ID为空时, 统一设置所有拉流的播放音量
+ @param streamID  流ID. ID为空时, 统一设置所有拉流的播放音量
  @return true 成功, false 失败
  @discussion 直播时通过此 API 软件调整音量
  */
@@ -172,6 +183,15 @@
 - (bool)setViewRotation:(int)rotate ofStream:(NSString *)streamID;
 
 /**
+ 设置视频控件的背景颜色
+ 
+ @param  color 颜色,取值为0x00RRGGBB
+ @param streamID 播放流 ID
+ @return true 成功，false 失败
+ */
+- (bool)setViewBackgroundColor:(int)color ofStream:(NSString *)streamID;
+
+/**
  对观看直播视图进行截图
  
  @param streamID 流 ID
@@ -187,7 +207,7 @@
  @param streamID 播放流 ID
  @param active true 接收，false 不接收
  @return 0 成功，否则失败
- @discussion 仅拉 UDP 流有效
+ @discussion 仅拉 UDP 流有效，必须在拉流后调用才有效
  */
 - (int)activateAudioPlayStream:(NSString *)streamID active:(bool)active;
 
@@ -197,9 +217,20 @@
  @param streamID 播放流 ID
  @param active true 接收，false 不接收
  @return 0 成功，否则失败
- @discussion 仅拉 UDP 流有效
+ @discussion 仅拉 UDP 流有效，必须在拉流后调用才有效
  */
-- (int)activateVedioPlayStream:(NSString *)streamID active:(bool)active;
+- (int)activateVideoPlayStream:(NSString *)streamID active:(bool)active;
+
+/**
+ 拉流是否接收视频数据
+ 
+ @param streamID 播放流 ID
+ @param active true 接收，false 不接收
+ @param videoLayer 视频分层类型
+ @return 0 成功，否则失败
+ @discussion 仅拉 UDP 流有效，必须在拉流后调用才有效
+ */
+- (int)activateVideoPlayStream:(NSString *)streamID active:(bool)active videoLayer:(VideoStreamLayer)videoLayer;
 
 /**
  设置拉流质量监控周期
@@ -210,51 +241,33 @@
 + (void)setPlayQualityMonitorCycle:(unsigned int)timeInMS;
 
 /**
- 设置外部渲染
- 
- @param bEnable 是否外部渲染，true 是，false 不是。默认 false
- @discussion 必须在初始化 SDK 前调用。启用外部渲染后，需要设置外部渲染回调代理对象。SDK 提供给用户外部渲染的源数据格式为 BGRA32
- */
-+ (void)enableExternalRender:(BOOL)bEnable;
-
-/**
- 设置外部渲染回调对象
- 
- @param renderDelegate 遵循 ZegoLiveApiRenderDelegate 协议的代理对象
- @discussion 使用外部渲染功能，需要设置代理对象。未设置代理对象，或对象设置错误，可能导致无法正常收到相关回调
- */
-- (void)setRenderDelegate:(id<ZegoLiveApiRenderDelegate>)renderDelegate;
-
-/**
- 音频录制开关
- 
- @param enable 开启音频录制。true 开启，false 关闭。默认 false
- @return true 成功，false 失败
- @discussion 初始化 SDK 后调用。开启音频录制后，调用方需要设置音频录制回调代理对象，并通过 [ZegoLiveRoomApi (Player) -onAudioRecord:sampleRate:numOfChannels:bitDepth:type:] 获取 SDK 录制的数据。使用此接口开启音频录制，相当于调用 enableSelectedAudioRecord:(ZegoAPIAudioRecordConfig)config，且 config 中的参数默认值为：ZEGO_AUDIO_RECORD_MIX、44100、单声道。
- */
-- (bool)enableAudioRecord:(BOOL)enable;
-
-/**
  音频录制开关
  
  @warning Deprecated，请使用 enableSelectedAudioRecord:
+ @discussion 在启动推流或者启动本地录制（MediaRecorder）的时候，才能开启音频录制
+ 
  */
 - (bool)enableSelectedAudioRecord:(unsigned int)mask sampleRate:(int)sampleRate;
 
 /**
- 音频录制开关
+ 开/关音频录制功能
  
- @param config 配置信息, 参考 ZegoAPIAudioRecordConfig
- @return true 成功，false 失败
- @discussion 初始化 SDK 后调用。开启音频录制后，调用方需要设置音频录制回调代理对象，并通过 [ZegoLiveRoomApi (Player) -onAudioRecord:sampleRate:numOfChannels:bitDepth:type:] 获取 SDK 录制的数据
+ * 注意：
+ * 1.必须在初始化 SDK 后调用。
+ * 2.开启音频录制后，App 需要设置音频录制代理(-setAudioRecordDelegate:)，才能通过 -onAudioRecord:sampleRate:numOfChannels:bitDepth:type: 获取 SDK 抛出的音频数据。
+ * 3.在启动推流或者启动本地录制（MediaRecorder）之后，才能开启音频录制。
+ 
+ @param config 配置信息, 详细请参考 struct ZegoAPIAudioRecordConfig
+ @return true 调用成功，false 调用失败
  */
 - (bool)enableSelectedAudioRecord:(ZegoAPIAudioRecordConfig)config;
 
 /**
- 设置音频录制回调代理对象
+ 设置音频录制代理对象
  
- @param audioRecordDelegate 遵循 ZegoLiveApiAudioRecordDelegate 协议的代理对象
- @discussion 开启音频录制功能，需要设置代理对象。未设置代理对象，或对象设置错误，可能导致无法正常收到相关回调
+ * 开启音频录制功能，需要设置代理对象。未设置代理对象，或对象设置错误，可能导致 App 无法正常收到 -onAudioRecord:sampleRate:numOfChannels:bitDepth:type: 回调。
+ 
+ @param audioRecordDelegate 音频录制回调
  */
 - (void)setAudioRecordDelegate:(id<ZegoLiveApiAudioRecordDelegate>)audioRecordDelegate;
 
@@ -292,16 +305,7 @@
  @param stateCode 播放状态码，0 表示拉流成功
  @param streamID 流 ID
  @discussion 观众调用 [ZegoLiveRoomApi (Player) -startPlayingStream:inView:] 或 [ZegoLiveRoomApi (Player) -startPlayingStream:inView:params:] 拉流成功后，通过该 API 通知
- @note 拉流状态码及其含义如下:
- stateCode = 0，直播开始。
- stateCode = 3，直播遇到严重问题（如出现，请联系 ZEGO 技术支持）。
- stateCode = 4，创建直播流失败。
- stateCode = 5，获取流信息失败。
- stateCode = 6，无流信息。
- stateCode = 7，媒体服务器连接失败（请确认推流端是否正常推流、正式环境和测试环境是否设置同一个、网络是否正常）。
- stateCode = 8，DNS 解析失败。
- stateCode = 9，未登录就直接拉流。
- stateCode = 10，逻辑服务器网络错误(网络断开时间过长时容易出现此错误)。
+ @note 拉流状态码，详见 enum ZegoErrorCode
  */
 - (void)onPlayStateUpdate:(int)stateCode streamID:(NSString *)streamID;
 
@@ -338,6 +342,45 @@
 - (void)onVideoSizeChangedTo:(CGSize)size ofStream:(NSString *)streamID;
 
 /**
+ 远端摄像头状态通知
+ 
+ @param streamID 流的唯一标识
+ @param status 参考 zego-api-defines-oc.h 中 ZegoAPIDeviceStatus 的定义
+ @param reason 参考 zego-api-defines-oc.h 中 ZegoAPIDeviceErrorReason 的定义
+ */
+- (void)onRemoteCameraStatusUpdate:(int)status ofStream:(NSString *)streamID reason:(int)reason;
+
+/**
+ 远端麦克风状态通知
+ 
+ @param streamID 流的唯一标识
+ @param status 参考 zego-api-defines-oc.h 中 ZegoAPIDeviceStatus 的定义
+ @param reason 参考 zego-api-defines-oc.h 中 ZegoAPIDeviceErrorReason 的定义
+ */
+- (void)onRemoteMicStatusUpdate:(int)status ofStream:(NSString *)streamID reason:(int)reason;
+
+/**
+ 接收到远端音频的首帧通知
+ 
+ @param streamID 流的唯一标识
+ */
+- (void)onRecvRemoteAudioFirstFrame:(NSString *)streamID;
+
+/**
+ 接收到远端视频的首帧通知
+ 
+ @param streamID 流的唯一标识
+ */
+- (void)onRecvRemoteVideoFirstFrame:(NSString *)streamID;
+
+/**
+ 远端视频渲染首帧通知
+ 
+ @param streamID 流的唯一标识
+ */
+- (void)onRenderRemoteVideoFirstFrame:(NSString *)streamID;
+
+/**
  观看质量更新
  
  @param quality 0 ~ 3 分别对应优、良、中、差
@@ -359,7 +402,11 @@
 
 @end
 
-
+/**
+ * 视频外部渲染代理
+ * 
+ * @warning Deprecated，请使用 zego-api-external-video-render-oc.h 中的 ZegoExternalVideoRenderDelegate
+ */
 @protocol ZegoLiveApiRenderDelegate <NSObject>
 
 /**
@@ -378,7 +425,7 @@
  
  @param pixelBuffer 拷贝完成的 PixelBuffer 地址
  @param streamID 流名
- @discussion SDK 通过此回调通知用户数据拷贝完成
+ @discussion SDK 通过此回调通知用户数据拷贝完成。当外部渲染拉流数据，streamID 为拉流流名；当外部渲染推流数据，streamID 为常量 kZegoVideoDataMainPublishingStream 时表示第一路推流数据；streamID 为常量 kZegoVideoDataAuxPublishingStream 时表示第二路推流数据
  */
 - (void)onPixelBufferCopyed:(CVPixelBufferRef)pixelBuffer ofStream:(NSString *)streamID;
 
@@ -392,12 +439,14 @@
 /**
  音频录制回调
  
- @param audioData SDK 录制的音频源数据
- @param sampleRate 采样率，与 [ZegoLiveRoomApi (Player) enableSelectedAudioRecord] 中设置的值一致
+ * 1.开启音频录制(-enableSelectedAudioRecord:)并成功设置音频录制代理(-setAudioRecordDelegate:)对象后，SDK 会触发该回调，App 可通过此 API 获取 SDK 抛出的音频数据。用户可自行对数据进行处理，例如：存储等。
+ * 2.存储数据时注意取 sampleRate、numOfChannels、bitDepth 参数写包头信息。退出房间或停止录制后，不会再收到该回调。
+ 
+ @param audioData SDK 返回的音频源数据
+ @param sampleRate 采样率，与 - enableSelectedAudioRecord: 参数中设置的值一致
  @param numOfChannels 通道数量，单通道
  @param bitDepth 位深度，16 bit
- @param type 音源类型，参考 ZegoAPIAudioRecordMask
- @discussion 开启音频录制并设置成功代理对象后，用户调用此 API 获取 SDK 录制的音频数据。用户可自行对数据进行处理，例如：存储等。SDK 发送音频数据的周期为 20ms。存储数据时注意取 sampleRate、numOfChannels、bitDepth 参数写包头信息。退出房间后或停止录制后，该回调不再被调用
+ @param type 音源类型，请参考 enum ZegoAPIAudioRecordMask
  */
 - (void)onAudioRecord:(NSData *)audioData sampleRate:(int)sampleRate numOfChannels:(int)numOfChannels bitDepth:(int)bitDepth type:(unsigned int)type;
 
